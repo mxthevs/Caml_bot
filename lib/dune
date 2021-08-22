@@ -1,0 +1,3 @@
+(library
+ (name caml_bot)
+ (libraries unix))

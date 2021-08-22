@@ -1,0 +1,4 @@
+(executable
+ (public_name caml_bot)
+ (name main)
+ (libraries caml_bot))
