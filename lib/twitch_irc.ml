@@ -1,3 +1,5 @@
+type config_t = { host : string; port : int }
+
 type prefix_t = string
 
 type command_t = string
@@ -6,9 +8,7 @@ type param_t = string
 
 type message_t = { prefix : prefix_t option; command : command_t; params : param_t list }
 
-let twitch_host = "irc.chat.twitch.tv"
-
-let twitch_port = 6667
+let cfg = { host = "irc.chat.twitch.tv"; port = 6667 }
 
 let is_digit (x : char) = '0' <= x && x <= '9'
 
@@ -102,16 +102,16 @@ let show_message (msg : message_t) : string =
     (msg.params |> String.concat ",")
 
 let start (config : Config.t) =
-  Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" twitch_host twitch_port;
+  Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" cfg.host cfg.port;
   flush stdout;
 
   let client_socket = Unix.socket ~cloexec:true Unix.PF_INET Unix.SOCK_STREAM 0 in
   let addr =
-    match (Unix.gethostbyname twitch_host).h_addr_list |> Array.to_list |> Util.list_to_option with
+    match (Unix.gethostbyname cfg.host).h_addr_list |> Array.to_list |> Util.list_to_option with
     | Some addr -> addr
-    | None -> twitch_host |> Printf.sprintf "[Twitch_irc] Could not resolve %s\n" |> failwith
+    | None -> cfg.host |> Printf.sprintf "[Twitch_irc] Could not resolve %s\n" |> failwith
   in
-  Unix.connect client_socket (ADDR_INET (addr, twitch_port));
+  Unix.connect client_socket (ADDR_INET (addr, cfg.port));
 
   Printf.printf "[Twitch_irc] Connected!\n";
   flush stdout;
