@@ -9,7 +9,7 @@ dev:
 	dune build -w
 
 run:
-	dune exec $(project)
+	dune exec $(project) ./secrets.conf
 
 debug:
 	dune exec $(project) -- --debug
