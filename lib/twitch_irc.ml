@@ -134,6 +134,7 @@ let start (config : Config.t) =
 
   config.twitch_password |> Printf.sprintf "PASS %s\r\n" |> output_string output_channel;
   config.twitch_username |> Printf.sprintf "NICK %s\r\n" |> output_string output_channel;
+  config.twitch_channel |> Printf.sprintf "JOIN #%s\r\n" |> output_string output_channel;
 
   flush_all ();
 
