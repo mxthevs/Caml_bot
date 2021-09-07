@@ -12,4 +12,4 @@ run:
 	dune exec $(project) ./secrets.conf
 
 debug:
-	dune exec $(project) -- --debug
+	dune exec $(project) ./secrets.conf -- --debug
