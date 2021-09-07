@@ -1,18 +1,18 @@
-type config_t = { host : string; port : int }
+type connection = { host : string; port : int }
 
-let cfg = { host = "irc.chat.twitch.tv"; port = 6667 }
+let conn = { host = "irc.chat.twitch.tv"; port = 6667 }
 
 let start (config : Config.t) =
-  Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" cfg.host cfg.port;
+  Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" conn.host conn.port;
   flush stdout;
 
   let client_socket = Unix.socket ~cloexec:true Unix.PF_INET Unix.SOCK_STREAM 0 in
   let addr =
-    match (Unix.gethostbyname cfg.host).h_addr_list |> Array.to_list |> Util.list_to_option with
+    match (Unix.gethostbyname conn.host).h_addr_list |> Array.to_list |> Util.list_to_option with
     | Some addr -> addr
-    | None -> cfg.host |> Printf.sprintf "[Twitch_irc] Could not resolve %s\n" |> failwith
+    | None -> conn.host |> Printf.sprintf "[Twitch_irc] Could not resolve %s\n" |> failwith
   in
-  Unix.connect client_socket (ADDR_INET (addr, cfg.port));
+  Unix.connect client_socket (ADDR_INET (addr, conn.port));
 
   Printf.printf "[Twitch_irc] Connected!\n";
   flush stdout;
