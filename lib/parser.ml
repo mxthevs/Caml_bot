@@ -9,26 +9,19 @@ end
 module Message = struct
   type t = {
     raw_content : string;
-    tags : Tag.t array;
+    tags : Tag.t list;
     prefix : string option;
     command : string option;
-    params : string array;
+    params : string list;
   }
 
-  let empty =
-    {
-      raw_content = "";
-      tags = Array.make 0 Tag.empty;
-      prefix = None;
-      command = None;
-      params = Array.make 0 "";
-    }
+  let empty = { raw_content = ""; tags = []; prefix = None; command = None; params = [] }
 
   let to_string message =
     Printf.sprintf "{ raw_content = %s; tags = [TODO]; prefix = %s; command = %s; params = [%s]}"
       message.raw_content
       (match message.prefix with Some a -> a | None -> "[NONE]")
       (match message.command with Some a -> a | None -> "[NONE]")
-      (message.params |> Array.fold_left (fun acc s -> acc ^ "," ^ s) "")
+      (message.params |> List.fold_left (fun acc s -> acc ^ "," ^ s) "")
 end
 
