@@ -18,10 +18,11 @@ module Message = struct
   let empty = { raw_content = ""; tags = []; prefix = None; command = None; params = [] }
 
   let to_string message =
-    Printf.sprintf "{ raw_content = %s; tags = [TODO]; prefix = %s; command = %s; params = [%s]}"
+    Printf.sprintf "{ raw_content = %s; tags = [%s]; prefix = %s; command = %s; params = [%s]}"
       message.raw_content
+      (message.tags |> List.fold_left (fun acc tag -> acc ^ "," ^ Tag.to_string tag) "")
       (match message.prefix with Some a -> a | None -> "[NONE]")
       (match message.command with Some a -> a | None -> "[NONE]")
-      (message.params |> List.fold_left (fun acc s -> acc ^ "," ^ s) "")
+      (message.params |> List.fold_left (fun acc param -> acc ^ "," ^ param) "")
 end
 
