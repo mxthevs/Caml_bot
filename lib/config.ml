@@ -7,7 +7,7 @@ let read_file file_path =
   close_in ch;
   s
 
-let default_config = { twitch_username = ""; twitch_password = ""; twitch_channel = "" }
+let empty = { twitch_username = ""; twitch_password = ""; twitch_channel = "" }
 
 let to_string config =
   Printf.sprintf "{ twitch.username = %s; twitch.password = [REDACTED]; twitch.channel = %s }"
@@ -29,4 +29,4 @@ let from_file file_path =
   |> List.map String.trim
   |> List.filter (fun s -> String.length s > 0)
   |> List.map (fun s -> s |> String.split_on_char '=' |> List.map String.trim)
-  |> List.fold_left update_config default_config
+  |> List.fold_left update_config empty
