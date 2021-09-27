@@ -1,2 +1,3 @@
 _build
 secrets.conf
+.env
