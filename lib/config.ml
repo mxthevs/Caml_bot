@@ -1,4 +1,4 @@
-type t = { twitch_username : string; twitch_password : string; twitch_channel : string }
+type t = { nick : string; pass : string; chan : string }
 
 let read_file file_path =
   let ch = open_in file_path in
@@ -7,18 +7,18 @@ let read_file file_path =
   close_in ch;
   s
 
-let empty = { twitch_username = ""; twitch_password = ""; twitch_channel = "" }
+let empty = { nick = ""; pass = ""; chan = "" }
 
 let to_string config =
-  Printf.sprintf "{ twitch.username = %s; twitch.password = [REDACTED]; twitch.channel = %s }"
-    config.twitch_username config.twitch_channel
+  Printf.sprintf "{ twitch.nick = %s; twitch.pass = [REDACTED]; twitch.chan = %s }" config.nick
+    config.chan
 
 let from_file file_path =
   let update_config config pair =
     match pair with
-    | [ "twitch.username"; username ] -> { config with twitch_username = username }
-    | [ "twitch.password"; password ] -> { config with twitch_password = password }
-    | [ "twitch.channel"; channel ] -> { config with twitch_channel = channel }
+    | [ "twitch.nick"; nick ] -> { config with nick }
+    | [ "twitch.pass"; pass ] -> { config with pass }
+    | [ "twitch.chan"; chan ] -> { config with chan }
     | [ unknown; _ ] -> unknown |> Printf.sprintf "`%s` config key is unknown." |> failwith
     | _ -> failwith "Your config file probably have some sort of syntax errors."
   in

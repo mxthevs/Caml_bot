@@ -26,3 +26,8 @@ module Message = struct
       (message.params |> List.fold_left (fun acc param -> acc ^ "," ^ param) "")
 end
 
+module S = struct
+  let skip n s = String.sub s n (String.length s - 1)
+
+  let take_until c s = s |> String.split_on_char c |> List.hd
+end
