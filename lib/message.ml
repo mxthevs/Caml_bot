@@ -135,3 +135,55 @@ let parse s =
       Result.Error
         (Printf.sprintf "unexpected error trying to parse \"%s\": %s" s (Printexc.to_string e))
 
+(* write [s] into [buf], possibly as a ':'-prefixed trail *)
+let write_trail buf s =
+  if String.contains s ' ' || (String.length s > 0 && s.[0] = ':') then Buffer.add_char buf ':';
+  Buffer.add_string buf s
+
+(* output list to buffer *)
+let write_list ?(trail = false) sep buf l =
+  let rec iter = function
+    | [] -> ()
+    | [ s ] when trail -> write_trail buf s
+    | [ s ] -> Buffer.add_string buf s
+    | s :: (_ :: _ as tail) ->
+        Buffer.add_string buf s;
+        Buffer.add_char buf sep;
+        iter tail
+  in
+  iter l
+
+let write_cmd_buf buf t =
+  let pp fmt = Printf.bprintf buf fmt in
+  match t.command with
+  | PASS s -> pp "PASS %s" s
+  | NICK s -> pp "NICK %s" s
+  | USER s -> pp "USER %a" (write_list ~trail:true ' ') s
+  | OPER (a, b) -> pp "OPER %s %s" a b
+  | MODE (a, b) -> pp "MODE %s %s" a b
+  | QUIT s -> pp "QUIT %a" write_trail s
+  | SQUIT (a, b) -> pp "SQUIT %s %a" a write_trail b
+  | JOIN (a, b) -> pp "JOIN %a %a" (write_list ',') a (write_list ',') b
+  | JOIN0 -> pp "JOIN 0"
+  | PART (a, b) -> pp "PART %a :%s" (write_list ',') a b
+  | TOPIC (a, b) -> pp "TOPIC %s %a" a write_trail b
+  | NAMES l -> pp "NAMES %a" (write_list ',') l
+  | LIST l -> pp "LIST %a" (write_list ',') l
+  | INVITE (a, b) -> pp "INVITE %s %s" a b
+  | KICK (l, nick, c) -> pp "KICK %a %s %a" (write_list ',') l nick write_trail c
+  | PRIVMSG (a, b, _) -> pp "PRIVMSG %s %a" a write_trail b
+  | NOTICE (a, b) -> pp "NOTICE %s %a" a write_trail b
+  | PING (a, b) -> pp "PING %s %a" a write_trail b
+  | PONG (a, b) -> pp "PONG %s %a" a write_trail b
+  | Other (command_name, params) ->
+      Printf.bprintf buf "%s %a" command_name (write_list ~trail:true ' ') params
+
+let write_buf buf t =
+  (match t.prefix with None -> () | Some s -> Printf.bprintf buf ":%s " s);
+  write_cmd_buf buf t;
+  ()
+
+let to_string t =
+  let buf = Buffer.create 64 in
+  write_buf buf t;
+  Buffer.contents buf
