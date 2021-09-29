@@ -31,7 +31,7 @@ module Irc_protocol = struct
   let privmsg channel content =
     fmt_outgoing (channel |> Printf.sprintf "%s :%s" content |> create ~t:PRIVMSG)
 
-  let pong () = fmt_outgoing (create ~t:PONG "tmi.twitch.tv")
+  let pong target = fmt_outgoing (create ~t:PONG target)
 end
 
 type out_string = out_channel -> string -> unit
@@ -70,7 +70,7 @@ let start (config : Config.t) =
             Printf.sprintf "t: %s; m: %s; u: %s" target message user
             |> Irc_protocol.fmt_incoming
             |> print_endline
-        | PING (_, _) -> Irc_protocol.pong () |> output_string output_channel
+        | PING (target, _) -> target |> Irc_protocol.pong |> output_string output_channel
         | _ -> ())
     | Error error -> failwith error);
 
