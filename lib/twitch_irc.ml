@@ -61,12 +61,18 @@ let start (config : Config.t) =
   let output_channel = client_socket |> Unix.out_channel_of_descr in
 
   let rec wait_for_messages_and_reply () =
-    let open Parser in
-    let raw_message = input_channel |> input_line in
-    raw_message |> Irc_protocol.fmt_incoming |> print_endline;
+    let input = input_channel |> input_line in
 
-    let connection_check = raw_message |> S.take_until ':' |> String.trim in
-    if connection_check = "PING" then Irc_protocol.pong () |> output_string output_channel;
+    (match Message.parse input with
+    | Ok message -> (
+        match message.command with
+        | PRIVMSG (target, message, user) ->
+            Printf.sprintf "t: %s; m: %s; u: %s" target message user
+            |> Irc_protocol.fmt_incoming
+            |> print_endline
+        | PING (_, _) -> Irc_protocol.pong () |> output_string output_channel
+        | _ -> ())
+    | Error error -> failwith error);
 
     flush_all ();
     wait_for_messages_and_reply ()
