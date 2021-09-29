@@ -7,7 +7,7 @@ maintainer: ["mxthevsh@gmail.com"]
 authors: ["Matheus Henrique"]
 license: "MIT"
 homepage: "https://github.com/mxthevs/caml_bot"
-doc: "https://mxthevs.github.io/caml_bot/"
+doc: "https://github.com/mxthevs/caml_bot#readme"
 bug-reports: "https://github.com/mxthevs/caml_bot/issues"
 depends: [
   "dune" {>= "2"}

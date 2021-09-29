@@ -19,7 +19,7 @@
 
 (bug_reports "https://github.com/mxthevs/caml_bot/issues")
 
-(documentation "https://mxthevs.github.io/caml_bot/")
+(documentation "https://github.com/mxthevs/caml_bot#readme")
 
 (package
  (name caml_bot)
