@@ -15,7 +15,7 @@ Caml_bot is a Twitch.tv chatbot for my channel [matheusdev1](https://twitch.tv/m
 
 ## Running locally
 
-To run this program in your PC, you have to provide the path to a credentials file as an argument. The file must be in the following format:
+To run this program in your PC, you have to provide the path to a credentials file as an argument. If you are going to the bot this via the `make run` or the `make debug` command, you should specify the path to this file in the Makefile too. The file must be in the following format:
 
 ```conf
 twitch.username=bot_name
