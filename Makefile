@@ -1,4 +1,5 @@
-project = caml_bot
+PROJECT = caml_bot
+SECRETS_PATH = ./secrets.conf
 
 deps: $(opam_file)
 
@@ -9,7 +10,7 @@ dev:
 	dune build -w
 
 run:
-	dune exec $(project) ./secrets.conf
+	dune exec $(PROJECT) ${SECRETS_PATH}
 
 debug:
-	dune exec $(project) ./secrets.conf -- --debug
+	dune exec $(PROJECT) ${SECRETS_PATH} -- --debug
