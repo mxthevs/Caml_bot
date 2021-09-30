@@ -20,3 +20,4 @@ let explode s =
   let rec exp i l = if i < 0 then l else exp (i - 1) (s.[i] :: l) in
   exp (String.length s - 1) []
 
+let count_char l (ch : char) = List.fold_left (fun acc c -> if c = ch then acc + 1 else acc) 0 l
