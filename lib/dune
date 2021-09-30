@@ -1,3 +1,5 @@
 (library
  (name caml_bot)
- (libraries unix))
+ (libraries unix str yojson ppx_deriving_yojson)
+ (preprocess
+  (pps ppx_deriving_yojson)))

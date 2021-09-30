@@ -26,12 +26,19 @@
  (synopsis "Twitch IRC Bot built with OCaml")
  (description "Twitch IRC Bot built from scratch with OCaml")
  (depends
+  ;; core
   (dune
    (>= 2))
   (ocaml
    (>= 4.12.0))
   (core
    (>= v0.12.2))
+  ;; dependencies
+  (yojson
+   (>= 3.6.1))
+  (ppx_deriving_yojson
+   (>= 1.7.0))
+  ;; dev-dependencies
   (utop :dev)
   (merlin :dev)
   (ocamlformat :dev)

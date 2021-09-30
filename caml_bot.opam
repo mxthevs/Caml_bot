@@ -13,6 +13,8 @@ depends: [
   "dune" {>= "2"}
   "ocaml" {>= "4.12.0"}
   "core" {>= "v0.12.2"}
+  "yojson" {>= "3.6.1"}
+  "ppx_deriving_yojson" {>= "1.7.0"}
   "utop" {dev}
   "merlin" {dev}
   "ocamlformat" {dev}
