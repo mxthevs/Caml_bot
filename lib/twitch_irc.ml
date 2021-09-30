@@ -10,11 +10,11 @@ module Irc_protocol = struct
       | JOIN -> "JOIN #"
       | NICK -> "NICK "
       | PASS -> "PASS "
-      | PRIVMSG -> "PRIVMSG #"
+      | PRIVMSG -> "PRIVMSG "
       | PONG -> "PONG :"
   end
 
-  let create ~t content = Message_type.to_string t ^ content ^ "\r\n"
+  let create ~command content = Message_type.to_string command ^ content ^ "\r\n"
 
   let fmt_incoming s = Printf.sprintf "<<< %s" s
 
@@ -22,25 +22,26 @@ module Irc_protocol = struct
     Printf.sprintf ">>> %s" fn |> print_string;
     fn
 
-  let join channel = fmt_outgoing (create ~t:JOIN channel)
+  let join channel = fmt_outgoing (create ~command:JOIN channel)
 
-  let nick username = fmt_outgoing (create ~t:NICK username)
+  let nick username = fmt_outgoing (create ~command:NICK username)
 
-  let pass password = create ~t:PASS password
+  let pass password = create ~command:PASS password
 
-  let privmsg channel content =
-    fmt_outgoing (channel |> Printf.sprintf "%s :%s" content |> create ~t:PRIVMSG)
+  let privmsg content ~target =
+    fmt_outgoing (content |> Printf.sprintf "%s :%s" target |> create ~command:PRIVMSG)
 
-  let pong target = fmt_outgoing (create ~t:PONG target)
+  let pong target = fmt_outgoing (create ~command:PONG target)
 end
 
 type out_string = out_channel -> string -> unit
 
 let join_and_greet (config : Config.t) (out_string : out_string) (out_descr : out_channel) =
-  config.pass |> Irc_protocol.pass |> out_string out_descr;
-  config.nick |> Irc_protocol.nick |> out_string out_descr;
-  config.chan |> Irc_protocol.join |> out_string out_descr;
-  config.chan |> Irc_protocol.privmsg "Initializing BOT MrDestructoid" |> out_string out_descr
+  let pass, nick, chan = (config.pass, config.nick, config.chan) in
+  pass |> Irc_protocol.pass |> out_string out_descr;
+  nick |> Irc_protocol.nick |> out_string out_descr;
+  chan |> Irc_protocol.join |> out_string out_descr;
+  Irc_protocol.privmsg ~target:("#" ^ chan) "Initializing BOT MrDestructoid" |> out_string out_descr
 
 let start (config : Config.t) =
   Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" conn.host conn.port;
