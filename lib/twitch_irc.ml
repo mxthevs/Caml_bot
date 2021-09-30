@@ -67,10 +67,10 @@ let start (config : Config.t) =
     (match Message.parse input with
     | Ok message -> (
         match message.command with
-        | PRIVMSG (target, message, user) ->
-            Printf.sprintf "t: %s; m: %s; u: %s" target message user
-            |> Irc_protocol.fmt_incoming
-            |> print_endline
+        | PRIVMSG (target, msg, user) -> (
+            match Command.parse msg user with
+            | Some reply -> Irc_protocol.privmsg ~target reply |> output_string output_channel
+            | None -> ())
         | PING (target, _) -> target |> Irc_protocol.pong |> output_string output_channel
         | _ -> ())
     | Error error -> error |> Printf.sprintf "[Twitch_irc] %s\n" |> failwith);
