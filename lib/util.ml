@@ -15,3 +15,8 @@ let split1_exn ~str ~c =
   let before = String.sub str 0 index in
   let after = String.sub str (index + 1) (String.length str - index - 1) in
   (before, after)
+
+let explode s =
+  let rec exp i l = if i < 0 then l else exp (i - 1) (s.[i] :: l) in
+  exp (String.length s - 1) []
+
