@@ -72,7 +72,7 @@ let start (config : Config.t) =
             |> print_endline
         | PING (target, _) -> target |> Irc_protocol.pong |> output_string output_channel
         | _ -> ())
-    | Error error -> failwith error);
+    | Error error -> error |> Printf.sprintf "[Twitch_irc] %s\n" |> failwith);
 
     flush_all ();
     wait_for_messages_and_reply ()
