@@ -49,7 +49,7 @@ let start (config : Config.t) =
 
   let client_socket = Unix.socket ~cloexec:true Unix.PF_INET Unix.SOCK_STREAM 0 in
   let addr =
-    match (Unix.gethostbyname conn.host).h_addr_list |> Array.to_list |> Util.list_to_option with
+    match (Unix.gethostbyname conn.host).h_addr_list |> Array.to_list |> Helpers.list_to_option with
     | Some addr -> addr
     | None -> conn.host |> Printf.sprintf "[Twitch_irc] Could not resolve %s\n" |> failwith
   in

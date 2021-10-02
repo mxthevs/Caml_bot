@@ -7,7 +7,7 @@ type t = {
 }
 [@@deriving yojson]
 
-let replace_username str user = Str.global_replace (Str.regexp "{{USERNAME}}") user str
+let replace_username user str = Str.global_replace (Str.regexp "{{USERNAME}}") user str
 
 let read_file file_path =
   let ch = open_in file_path in
@@ -16,20 +16,25 @@ let read_file file_path =
   close_in ch;
   s
 
+let count_spaces s = Helpers.count_char (Helpers.explode s) ' '
+
 let parse message username =
   let response_field = "response" in
 
-  if String.get message 0 = '!' && Util.count_char (Util.explode message) ' ' < 2 then
+  if String.get message 0 = '!' && count_spaces message < 2 then
+    let open Yojson.Safe in
     let cmd_meta = read_file "./cmd/exclamation.json" in
-    let cmd = Yojson.Safe.from_string cmd_meta in
+    let cmd = from_string cmd_meta in
 
     let reply =
-      Yojson.Safe.to_string (Yojson.Safe.Util.member response_field cmd)
-      |> Util.explode
+      Util.member response_field cmd
+      |> to_string
+      |> Helpers.explode
       |> List.filter (fun c -> c != '"')
       |> List.to_seq
       |> String.of_seq
+      |> replace_username username
     in
 
-    Some (replace_username reply username)
+    Some reply
   else None

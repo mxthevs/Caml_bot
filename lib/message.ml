@@ -43,11 +43,11 @@ let extract_trail str =
 
 exception ParseError of string * string
 
-let split_spaces str = Util.split ~str ~c:' '
+let split_spaces str = Helpers.split ~str ~c:' '
 
-let split_comma str = Util.split ~str ~c:','
+let split_comma str = Helpers.split ~str ~c:','
 
-let split_space1 str = Util.split1_exn ~str ~c:' '
+let split_space1 str = Helpers.split1_exn ~str ~c:' '
 
 (* split parameters into tokens separated by spaces. If a trail, prefixed
    by ':', exists, it is the last token *)
