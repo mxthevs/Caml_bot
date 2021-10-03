@@ -8,10 +8,10 @@ Caml_bot is a Twitch.tv chatbot for my channel [o_caml](https://twitch.tv/o_caml
 
 ## What does it do?
 
-  1. It have its own very performatic IRC Client, with **zero** third-party dependencies and built completely from scratch.
-  2. It parses incoming messages from chat to a nice fully typed format.
-  3. It has a full (opinionated) command parser, making it easy to configure, create and deploy new commands, without having to touch source.
-  4. It can have public and mod-only commands.
+1. It have its own very performatic IRC Client, with **zero** third-party dependencies and built completely from scratch.
+2. It parses incoming messages from chat to a nice fully typed format.
+3. It has a full (opinionated) command parser, making it easy to configure, create and deploy new commands, without having to touch source.
+4. It can have public and mod-only commands.
 
 ## Running locally
 
@@ -26,9 +26,10 @@ twitch.channel=channel_name
 If you don't have a `TMI OAuth token`, you can generate one at [https://twitchapps.com/tmi/](https://twitchapps.com/tmi/)
 
 ### Dependencies
-  * OCaml (>= v4.12.0)
-  * OCaml Core library (>= v0.12.2)
-  * Dune (>= v2)
+
+- OCaml (>= v4.12.0)
+- OCaml Core library (>= v0.12.2)
+- Dune (>= v2)
 
 #### ⚠️ Disclaimer
 
@@ -56,4 +57,4 @@ See the [Makefile](./Makefile) for more details. It's very simple.
 
 If you have any problem, you can hit me up, for sure!
 
-*Released under MIT License 2021*
+_Released under MIT License 2021_
