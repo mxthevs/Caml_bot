@@ -21,3 +21,10 @@ let explode s =
   exp (String.length s - 1) []
 
 let count_char l (ch : char) = List.fold_left (fun acc c -> if c = ch then acc + 1 else acc) 0 l
+
+let read_file file_path =
+  let ch = open_in file_path in
+  let n = in_channel_length ch in
+  let s = really_input_string ch n in
+  close_in ch;
+  s

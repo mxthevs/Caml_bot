@@ -1,12 +1,5 @@
 type t = { nick : string; pass : string; chan : string }
 
-let read_file file_path =
-  let ch = open_in file_path in
-  let n = in_channel_length ch in
-  let s = really_input_string ch n in
-  close_in ch;
-  s
-
 let empty = { nick = ""; pass = ""; chan = "" }
 
 let to_string config =
@@ -24,7 +17,7 @@ let from_file file_path =
   in
 
   file_path
-  |> read_file
+  |> Helpers.read_file
   |> String.split_on_char '\n'
   |> List.map String.trim
   |> List.filter (fun s -> String.length s > 0)
