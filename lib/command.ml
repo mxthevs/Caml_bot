@@ -7,7 +7,7 @@ type t = {
 }
 [@@deriving yojson]
 
-let replace_username user str = Str.global_replace (Str.regexp "{{USERNAME}}") user str
+let replace_in_str expr str original = Str.global_replace expr str original
 
 let read_file file_path =
   let ch = open_in file_path in
@@ -33,7 +33,7 @@ let parse message username =
       |> List.filter (fun c -> c != '"')
       |> List.to_seq
       |> String.of_seq
-      |> replace_username username
+      |> replace_in_str (Str.regexp "%1") username
     in
 
     Some reply
