@@ -18,9 +18,9 @@ Caml_bot is a Twitch.tv chatbot for my channel [o_caml](https://twitch.tv/o_caml
 To run this program in your PC, you have to provide the path to a credentials file as an argument. If you are going to the bot this via the `make run` or the `make debug` command, you should specify the path to this file in the Makefile too. The file must be in the following format:
 
 ```conf
-twitch.username=bot_name
-twitch.password=oauth:your_key
-twitch.channel=channel_name
+twitch.nick=bot_name
+twitch.pass=oauth:your_key
+twitch.chan=channel_name
 ```
 
 If you don't have a `TMI OAuth token`, you can generate one at [https://twitchapps.com/tmi/](https://twitchapps.com/tmi/)
