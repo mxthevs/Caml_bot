@@ -2,6 +2,7 @@ version: '3'
 
 services:
   postgresql:
+    container_name: caml_bot_db
     image: 'bitnami/postgresql:latest'
     environment:
       - POSTGRESQL_PASSWORD=${PG_PASSWORD}
