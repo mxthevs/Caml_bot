@@ -1,5 +1,9 @@
 {
   "editor.formatOnSave": true,
+  "ocaml.sandbox": {
+    "kind": "opam",
+    "switch": "default"
+  },
   "[json]": {
     "editor.formatOnSave": false
   }
