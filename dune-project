@@ -31,13 +31,21 @@
    (>= 2))
   (ocaml
    (>= 4.12.0))
-  (core
-   (>= v0.12.2))
   ;; dependencies
-  (yojson
-   (>= 3.6.1))
-  (ppx_deriving_yojson
-   (>= 1.7.0))
+  (lwt
+   (>= 5.4.2))
+  (uuidm
+   (>= 0.9.7))
+  (caqti
+   (>= 1.6.0))
+  (caqti-lwt
+   (>= 1.6.0))
+  (caqti-driver-postgresql
+   (>= 1.6.0))
+  (ppx_rapper
+   (>= 3.0.0))
+  (ppx_rapper_lwt
+   (>= 3.0.0))
   ;; dev-dependencies
   (utop :dev)
   (merlin :dev)

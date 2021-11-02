@@ -1,5 +1,12 @@
 (library
  (name caml_bot)
- (libraries unix str yojson ppx_deriving_yojson)
+ (libraries
+  unix
+  lwt
+  uuidm
+  caqti
+  caqti-lwt
+  caqti-driver-postgresql
+  ppx_rapper_lwt)
  (preprocess
-  (pps ppx_deriving_yojson)))
+  (pps ppx_rapper)))
