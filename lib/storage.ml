@@ -6,18 +6,10 @@ type command = { name : string }
 
 type stored_command = { id : string; name : string }
 
-let username = Sys.getenv "USERNAME"
-
-let password = Sys.getenv "PASSWORD"
-
-let database = Sys.getenv "DATABASE"
-
-let connection_url = "postgresql://" ^ username ^ ":" ^ password ^ "@localhost:5432/" ^ database
-
 let ( let* ) = Lwt.bind
 
 let pool =
-  match Caqti_lwt.connect_pool ~max_size:10 (Uri.of_string connection_url) with
+  match Caqti_lwt.connect_pool ~max_size:10 (Uri.of_string Config.Database.connection_url) with
   | Ok pool -> pool
   | Error error -> failwith (Caqti_error.show error)
 
