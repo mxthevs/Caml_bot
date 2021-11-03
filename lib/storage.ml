@@ -19,3 +19,14 @@ let dispatch f =
   | Ok data -> Lwt.return data
   | Error error -> Lwt.fail (Query_failed (Caqti_error.show error))
 
+let migrate =
+  [%rapper
+    execute
+      {sql|
+        CREATE TABLE IF NOT EXISTS commands (
+          id VARCHAR PRIMARY KEY NOT NULL,
+          name VARCHAR
+        );
+      |sql}]
+    ()
+
