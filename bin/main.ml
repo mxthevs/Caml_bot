@@ -1,6 +1,7 @@
 open Caml_bot
+open Storage.Db
 
-let () = Storage.dispatch Storage.migrate |> Lwt_main.run
+let () = dispatch ensure_commands_table_exists |> Lwt_main.run
 
 let () =
   match Sys.argv |> Array.to_list with
