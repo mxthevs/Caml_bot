@@ -40,8 +40,7 @@ let join_and_greet (config : Config.t) (out_string : out_string) (out_descr : ou
   let pass, nick, chan = (config.pass, config.nick, config.chan) in
   pass |> Irc_protocol.pass |> out_string out_descr;
   nick |> Irc_protocol.nick |> out_string out_descr;
-  chan |> Irc_protocol.join |> out_string out_descr;
-  Irc_protocol.privmsg ~target:("#" ^ chan) "Initializing BOT MrDestructoid" |> out_string out_descr
+  chan |> Irc_protocol.join |> out_string out_descr
 
 let start (config : Config.t) =
   Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" conn.host conn.port;
