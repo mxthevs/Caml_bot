@@ -63,13 +63,18 @@ let start (config : Config.t) =
   let rec wait_for_messages_and_reply () =
     let input = input_channel |> input_line in
 
+    let handle_privsmg ~target ~message ~sender =
+      let command = Command.parse message sender in
+
+      match command with
+      | Some reply -> Irc_protocol.privmsg ~target reply |> output_string output_channel
+      | None -> ()
+    in
+
     (match Message.parse input with
     | Ok message -> (
         match message.command with
-        | PRIVMSG (target, msg, user) -> (
-            match Command.parse msg user with
-            | Some reply -> Irc_protocol.privmsg ~target reply |> output_string output_channel
-            | None -> ())
+        | PRIVMSG (target, message, sender) -> handle_privsmg ~target ~message ~sender
         | PING (target, _) -> target |> Irc_protocol.pong |> output_string output_channel
         | _ -> ())
     | Error error -> error |> Printf.sprintf "[Twitch_irc] %s\n" |> failwith);

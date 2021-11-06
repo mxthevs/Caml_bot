@@ -2,6 +2,7 @@
  (name caml_bot)
  (libraries
   unix
+  bot
   lwt
   uuidm
   caqti
