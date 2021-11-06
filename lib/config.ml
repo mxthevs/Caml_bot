@@ -1,11 +1,10 @@
 module Database = struct
-  let username = Sys.getenv "USERNAME"
+  let connection_url =
+    let username = Sys.getenv "USERNAME" in
+    let password = Sys.getenv "PASSWORD" in
+    let database = Sys.getenv "DATABASE" in
 
-  let password = Sys.getenv "PASSWORD"
-
-  let database = Sys.getenv "DATABASE"
-
-  let connection_url = "postgresql://" ^ username ^ ":" ^ password ^ "@localhost:5432/" ^ database
+    "postgresql://" ^ username ^ ":" ^ password ^ "@localhost:5432/" ^ database
 end
 
 type t = { nick : string; pass : string; chan : string }
