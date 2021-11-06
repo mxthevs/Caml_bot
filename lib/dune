@@ -9,4 +9,4 @@
   caqti-driver-postgresql
   ppx_rapper_lwt)
  (preprocess
-  (pps ppx_rapper)))
+  (pps ppx_rapper lwt_ppx)))

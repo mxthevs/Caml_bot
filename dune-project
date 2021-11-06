@@ -34,6 +34,8 @@
   ;; dependencies
   (lwt
    (>= 5.4.2))
+  (lwt_ppx
+   (>= 2.0.2))
   (uuidm
    (>= 0.9.7))
   (caqti
