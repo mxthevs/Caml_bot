@@ -28,8 +28,7 @@ module Irc_protocol = struct
 
   let pass password = create ~command:PASS password
 
-  let privmsg content ~target =
-    fmt_outgoing (content |> Printf.sprintf "%s :%s" target |> create ~command:PRIVMSG)
+  let privmsg content ~target = content |> Printf.sprintf "%s :%s" target |> create ~command:PRIVMSG
 
   let pong target = fmt_outgoing (create ~command:PONG target)
 end
