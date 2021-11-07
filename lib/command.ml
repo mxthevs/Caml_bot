@@ -4,7 +4,8 @@ type handler = string * string -> string
 
 type builtin_command = { name : string; handler : handler }
 
-let builtin_commands = [ { name = "flip"; handler = Bot.Flip.handle } ]
+let builtin_commands =
+  [ { name = "flip"; handler = Bot.Flip.handle }; { name = "clima"; handler = Bot.Wttr.handle } ]
 
 let parse_as_builtin ((message, sender) : strtup2) ~handler : string = handler (message, sender)
 

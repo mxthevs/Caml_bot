@@ -1,2 +1,3 @@
 (library
- (name bot))
+ (name bot)
+ (libraries piaf))
