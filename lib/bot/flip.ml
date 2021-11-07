@@ -59,7 +59,9 @@ let flip_table =
     ("\u{2234}", "\u{2235}");
   ]
 
-let handle text =
+let string_of_char c = String.make 1 c
+
+let handle (text, _sender) =
   let rec flip_str acc = function
     | [] -> acc
     | letter :: rest ->
@@ -70,9 +72,8 @@ let handle text =
         flip_str (flipped ^ acc) rest
   in
 
-  let emote = "(╯°□°)╯︵ " in
-  let flipped_text =
-    flip_str "" (text |> String.to_seq |> List.of_seq |> List.map (fun c -> String.make 1 c))
-  in
+  let input = text |> String.to_seq |> List.of_seq |> List.map string_of_char in
 
+  let emote = "(╯°□°)╯︵ " in
+  let flipped_text = flip_str "" input in
   emote ^ flipped_text
