@@ -22,6 +22,8 @@ let explode s =
 
 let count_char l (ch : char) = List.fold_left (fun acc c -> if c = ch then acc + 1 else acc) 0 l
 
+let has_char c s = match String.index_opt s c with Some _ -> true | None -> false
+
 let read_file file_path =
   let ch = open_in file_path in
   let n = in_channel_length ch in
