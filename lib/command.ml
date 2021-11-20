@@ -11,10 +11,11 @@ let builtin_commands =
     { name = "roleta"; handler = Bot.Rr.handle };
   ]
 
+let show_builtin_handler = "comandos"
 
 let show_builtin_commands sender command_list =
   sender
-  ^ " -> "
+  ^ " , os comandos são: "
   ^ (command_list
     |> List.map (fun cmd -> cmd.name)
     |> List.fold_left (fun acc el -> if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el) "")
@@ -36,7 +37,7 @@ let extract_params message =
 let parse message sender =
   let command, content = extract_params message in
 
-  if command = "comandos" then Some (show_builtin_commands sender builtin_commands)
+  if command = show_builtin_handler then Some (show_builtin_commands sender builtin_commands)
   else
     let handler = List.find_opt (fun cmd -> cmd.name = command) builtin_commands in
 
