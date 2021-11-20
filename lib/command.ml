@@ -5,7 +5,12 @@ type handler = string * string -> string
 type builtin_command = { name : string; handler : handler }
 
 let builtin_commands =
-  [ { name = "flip"; handler = Bot.Flip.handle }; { name = "clima"; handler = Bot.Wttr.handle } ]
+  [
+    { name = "flip"; handler = Bot.Flip.handle };
+    { name = "clima"; handler = Bot.Wttr.handle };
+    { name = "roleta"; handler = Bot.Rr.handle };
+  ]
+
 
 let show_builtin_commands sender command_list =
   sender
