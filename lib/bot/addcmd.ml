@@ -12,4 +12,4 @@ let handle (text, _sender) =
       match Storage.store { name = command; reply = response } with
       | Ok () -> "Comando criado com sucesso. !addcmd é um comando apenas para moderadores"
       | Error _ -> "Não foi possível criar o comando e a culpa é do criador desse bot")
-  | None -> "Uso: !addcmd $name $reply - Esse é um comando apenas para moderadores"
+  | None -> "Uso: `!addcmd $1 $2` - Esse é um comando apenas para moderadores"
