@@ -2,14 +2,20 @@ type strtup2 = string * string
 
 type handler = string * string -> string
 
-type builtin_command = { name : string; handler : handler }
+type builtin_command = { name : string; handler : handler; mod_only : bool }
 
 let builtin_commands =
   [
-    { name = "flip"; handler = Bot.Flip.handle };
-    { name = "clima"; handler = Bot.Wttr.handle };
-    { name = "roleta"; handler = Bot.Rr.handle };
+    { name = "flip"; handler = Bot.Flip.handle; mod_only = false };
+    { name = "clima"; handler = Bot.Wttr.handle; mod_only = false };
+    { name = "roleta"; handler = Bot.Rr.handle; mod_only = false };
   ]
+
+let filter_mod_only_commands commands = List.filter (fun cmd -> not cmd.mod_only) commands
+
+let find_command name command_list ~include_mod_only =
+  let list = if include_mod_only then command_list else filter_mod_only_commands command_list in
+  List.find_opt (fun cmd -> cmd.name = name) list
 
 let show_builtin_handler = "comandos"
 
@@ -39,7 +45,7 @@ let parse message sender =
 
   if command = show_builtin_handler then Some (show_builtin_commands sender builtin_commands)
   else
-    let handler = List.find_opt (fun cmd -> cmd.name = command) builtin_commands in
+    let handler = find_command command builtin_commands ~include_mod_only:true in
 
     match handler with
     | Some { handler; _ } -> Some (parse_as_builtin (content, sender) ~handler)
