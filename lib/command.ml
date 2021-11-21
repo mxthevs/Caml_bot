@@ -6,6 +6,7 @@ type builtin_command = { name : string; handler : handler; mod_only : bool }
 
 let builtin_commands =
   [
+    { name = "addcmd"; handler = Bot.Addcmd.handle; mod_only = true };
     { name = "flip"; handler = Bot.Flip.handle; mod_only = false };
     { name = "clima"; handler = Bot.Wttr.handle; mod_only = false };
     { name = "roleta"; handler = Bot.Rr.handle; mod_only = false };

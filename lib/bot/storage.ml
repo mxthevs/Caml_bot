@@ -32,3 +32,22 @@ module Db = struct
         |sql}]
       ()
 end
+
+module Async = struct
+  let store ({ name; reply } : command) =
+    let insert =
+      [%rapper
+        execute
+          {sql|
+            INSERT INTO commands
+            VALUES(%string{id}, %string{name}, %string{reply})
+          |sql}
+          record_in]
+    in
+    let id = Uuidm.create `V4 |> Uuidm.to_string in
+    Db.dispatch (insert { id; name; reply })
+end
+
+let store ({ name; reply } : command) =
+  try Ok (Lwt_main.run (Async.store { name; reply }))
+  with Db.Query_failed error -> Error (Printf.sprintf "Could not create command: %s" error)
