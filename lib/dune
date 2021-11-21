@@ -1,13 +1,3 @@
 (library
  (name caml_bot)
- (libraries
-  unix
-  bot
-  lwt
-  uuidm
-  caqti
-  caqti-lwt
-  caqti-driver-postgresql
-  ppx_rapper_lwt)
- (preprocess
-  (pps ppx_rapper lwt_ppx)))
+ (libraries unix bot))
