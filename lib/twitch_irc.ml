@@ -63,11 +63,12 @@ let start (config : Config.t) =
     let input = input_channel |> input_line in
 
     let handle_privsmg ~target ~message ~sender =
-      let command = Command.parse message sender in
+      if message.[0] = '!' then
+        let command = Command.parse message sender in
 
-      match command with
-      | Some reply -> Irc_protocol.privmsg ~target reply |> output_string output_channel
-      | None -> ()
+        match command with
+        | Some reply -> Irc_protocol.privmsg ~target reply |> output_string output_channel
+        | None -> ()
     in
 
     (match Message.parse input with

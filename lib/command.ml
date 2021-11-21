@@ -44,6 +44,8 @@ let extract_params message =
     (command, rest)
   else ("", "")
 
+let say (s : string) = Some s
+
 let parse message sender =
   let command, content = extract_params message in
 
@@ -52,8 +54,8 @@ let parse message sender =
     let handler = find_command command builtin_commands ~include_mod_only:true in
 
     match handler with
-    | Some { handler; _ } -> Some (parse_as_builtin (content, sender) ~handler)
+    | Some { handler; _ } -> say (parse_as_builtin (content, sender) ~handler)
     | None -> (
         match parse_as_external (command, sender) with
-        | Some { reply; _ } -> Some reply
-        | None -> None)
+        | Some { reply; _ } -> say reply
+        | None -> say (Printf.sprintf "Não conheço esse comando \"!%s\", %s" command sender))
