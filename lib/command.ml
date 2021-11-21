@@ -29,6 +29,9 @@ let show_builtin_commands sender command_list =
 
 let parse_as_builtin ((message, sender) : strtup2) ~handler : string = handler (message, sender)
 
+let parse_as_external ((message, _sender) : strtup2) =
+  match Bot.Storage.show message with Ok command -> command | Error _ -> None
+
 let extract_params message =
   let open Parser in
   let open Helpers in
@@ -50,4 +53,7 @@ let parse message sender =
 
     match handler with
     | Some { handler; _ } -> Some (parse_as_builtin (content, sender) ~handler)
-    | None -> None
+    | None -> (
+        match parse_as_external (command, sender) with
+        | Some { reply; _ } -> Some reply
+        | None -> None)

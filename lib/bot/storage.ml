@@ -34,6 +34,25 @@ module Db = struct
 end
 
 module Async = struct
+  let show name =
+    let read_one =
+      [%rapper
+        get_opt
+          {sql|
+            SELECT @string{id}, @string{name}, @string{reply}
+            FROM commands
+            WHERE name = %string{name}
+          |sql}
+          record_out]
+    in
+
+    let* database_command = Db.dispatch (read_one ~name) in
+    let command =
+      match database_command with Some { name; reply; _ } -> Some { name; reply } | None -> None
+    in
+
+    Lwt.return command
+
   let store ({ name; reply } : command) =
     let insert =
       [%rapper
@@ -47,6 +66,10 @@ module Async = struct
     let id = Uuidm.create `V4 |> Uuidm.to_string in
     Db.dispatch (insert { id; name; reply })
 end
+
+let show name =
+  try Ok (Lwt_main.run (Async.show name))
+  with Db.Query_failed error -> Error (Printf.sprintf "Could not retrieve command: %s" error)
 
 let store ({ name; reply } : command) =
   try Ok (Lwt_main.run (Async.store { name; reply }))
