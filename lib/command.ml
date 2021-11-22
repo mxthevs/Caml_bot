@@ -22,6 +22,7 @@ let show_commands_handler = "comandos"
 
 let show_builtin_commands command_list =
   command_list
+  |> filter_mod_only_commands
   |> List.map (fun cmd -> cmd.name)
   |> List.fold_left (fun acc el -> if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el) ""
 
