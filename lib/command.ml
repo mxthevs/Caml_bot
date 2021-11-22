@@ -47,6 +47,7 @@ let show_commands sender command_list =
 let parse_as_builtin ((message, sender) : strtup2) ~handler : string = handler (message, sender)
 
 let parse_as_external ((message, _sender) : strtup2) =
+  (* TODO: come up with a way to tag the sender in reply *)
   match Bot.Storage.show message with Ok command -> command | Error _ -> None
 
 let extract_params message =
@@ -68,6 +69,7 @@ let parse message sender =
 
   if command = show_commands_handler then Some (show_commands sender builtin_commands)
   else
+    (* TODO: actually verify if the sender is a mod or not *)
     let handler = find_builtin_command command builtin_commands ~include_mod_only:true in
 
     match handler with
