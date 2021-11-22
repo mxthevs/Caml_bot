@@ -34,6 +34,8 @@ module Db = struct
 end
 
 module Async = struct
+  exception Command_not_found of string
+
   let index () =
     let read_all =
       [%rapper
@@ -79,6 +81,22 @@ module Async = struct
     in
     let id = Uuidm.create `V4 |> Uuidm.to_string in
     Db.dispatch (insert { id; name; reply })
+
+  let destroy name =
+    let* database_command = show name in
+
+    match database_command with
+    | Some command ->
+        let delete =
+          [%rapper
+            execute
+              {sql|
+              DELETE FROM commands
+              WHERE name = %string{name}
+            |sql}]
+        in
+        Db.dispatch (delete ~name:command.name)
+    | None -> raise (Command_not_found (Printf.sprintf "Command %s does not exists" name))
 end
 
 let index () =
@@ -92,3 +110,8 @@ let show name =
 let store ({ name; reply } : command) =
   try Ok (Lwt_main.run (Async.store { name; reply }))
   with Db.Query_failed error -> Error (Printf.sprintf "Could not create command: %s" error)
+
+let destroy name =
+  try Ok (Lwt_main.run (Async.destroy name)) with
+  | Db.Query_failed error -> Error (Printf.sprintf "Could not delete command: %s" error)
+  | Async.Command_not_found error -> Error error

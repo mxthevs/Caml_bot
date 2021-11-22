@@ -7,6 +7,7 @@ type builtin_command = { name : string; handler : handler; mod_only : bool }
 let builtin_commands =
   [
     { name = "addcmd"; handler = Bot.Addcmd.handle; mod_only = true };
+    { name = "delcmd"; handler = Bot.Delcmd.handle; mod_only = true };
     { name = "flip"; handler = Bot.Flip.handle; mod_only = false };
     { name = "clima"; handler = Bot.Wttr.handle; mod_only = false };
     { name = "roleta"; handler = Bot.Rr.handle; mod_only = false };
@@ -20,18 +21,20 @@ let find_builtin_command name command_list ~include_mod_only =
 
 let show_commands_handler = "comandos"
 
+let build_command_string acc el = if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el
+
 let show_builtin_commands command_list =
   command_list
   |> filter_mod_only_commands
   |> List.map (fun cmd -> cmd.name)
-  |> List.fold_left (fun acc el -> if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el) ""
+  |> List.fold_left build_command_string ""
 
 let show_external_commands () =
   match Bot.Storage.index () with
   | Ok command_list ->
       command_list
       |> List.map (fun (cmd : Bot.Storage.command) -> cmd.name)
-      |> List.fold_left (fun acc el -> if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el) ""
+      |> List.fold_left build_command_string ""
   | Error _ -> ""
 
 let show_commands sender command_list =
