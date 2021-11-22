@@ -14,18 +14,31 @@ let builtin_commands =
 
 let filter_mod_only_commands commands = List.filter (fun cmd -> not cmd.mod_only) commands
 
-let find_command name command_list ~include_mod_only =
+let find_builtin_command name command_list ~include_mod_only =
   let list = if include_mod_only then command_list else filter_mod_only_commands command_list in
   List.find_opt (fun cmd -> cmd.name = name) list
 
-let show_builtin_handler = "comandos"
+let show_commands_handler = "comandos"
 
-let show_builtin_commands sender command_list =
+let show_builtin_commands command_list =
+  command_list
+  |> List.map (fun cmd -> cmd.name)
+  |> List.fold_left (fun acc el -> if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el) ""
+
+let show_external_commands () =
+  match Bot.Storage.index () with
+  | Ok command_list ->
+      command_list
+      |> List.map (fun (cmd : Bot.Storage.command) -> cmd.name)
+      |> List.fold_left (fun acc el -> if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el) ""
+  | Error _ -> ""
+
+let show_commands sender command_list =
   sender
   ^ " , os comandos são: "
-  ^ (command_list
-    |> List.map (fun cmd -> cmd.name)
-    |> List.fold_left (fun acc el -> if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el) "")
+  ^ show_builtin_commands command_list
+  ^ " "
+  ^ show_external_commands ()
 
 let parse_as_builtin ((message, sender) : strtup2) ~handler : string = handler (message, sender)
 
@@ -49,9 +62,9 @@ let say (s : string) = Some s
 let parse message sender =
   let command, content = extract_params message in
 
-  if command = show_builtin_handler then Some (show_builtin_commands sender builtin_commands)
+  if command = show_commands_handler then Some (show_commands sender builtin_commands)
   else
-    let handler = find_command command builtin_commands ~include_mod_only:true in
+    let handler = find_builtin_command command builtin_commands ~include_mod_only:true in
 
     match handler with
     | Some { handler; _ } -> say (parse_as_builtin (content, sender) ~handler)

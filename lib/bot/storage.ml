@@ -34,6 +34,20 @@ module Db = struct
 end
 
 module Async = struct
+  let index () =
+    let read_all =
+      [%rapper
+        get_many
+          {sql|
+            SELECT @string{id}, @string{name}, @string{reply}
+            FROM commands
+          |sql}
+          record_out]
+        ()
+    in
+    let* commands = Db.dispatch read_all in
+    commands |> List.map (fun { name; reply; _ } -> { name; reply }) |> Lwt.return
+
   let show name =
     let read_one =
       [%rapper
@@ -66,6 +80,10 @@ module Async = struct
     let id = Uuidm.create `V4 |> Uuidm.to_string in
     Db.dispatch (insert { id; name; reply })
 end
+
+let index () =
+  try Ok (Lwt_main.run (Async.index ()))
+  with Db.Query_failed error -> Error (Printf.sprintf "Could not retrieve commands: %s" error)
 
 let show name =
   try Ok (Lwt_main.run (Async.show name))
