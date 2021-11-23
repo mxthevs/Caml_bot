@@ -19,3 +19,7 @@ let take_after_exn c s =
   | None -> Printf.sprintf "%s has no character %c" s c |> failwith
 
 let take_after c s = try take_after_exn c s with Failure _ -> ""
+
+let split_on_first_space =
+  let re = Str.regexp "[ \t\r\n]" in
+  function s -> Str.bounded_split re s 2
