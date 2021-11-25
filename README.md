@@ -4,7 +4,7 @@
 
 ## What this is?
 
-Caml_bot is a Twitch.tv chatbot for my channel [o_caml](https://twitch.tv/o_caml) there! 🤗
+Caml_bot is a Twitch.tv chatbot for my channel [mxthevsz](https://twitch.tv/mxthevsz) there! 🤗
 
 ## What does it do?
 
