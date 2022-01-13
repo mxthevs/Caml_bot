@@ -1,10 +1,18 @@
-type connection = { host : string; port : int }
+type connection = {
+  host : string;
+  port : int;
+}
 
 let conn = { host = "irc.chat.twitch.tv"; port = 6667 }
 
 module Irc_protocol = struct
   module Message_type = struct
-    type t = JOIN | NICK | PASS | PRIVMSG | PONG
+    type t =
+      | JOIN
+      | NICK
+      | PASS
+      | PRIVMSG
+      | PONG
 
     let to_string = function
       | JOIN -> "JOIN #"
@@ -15,7 +23,6 @@ module Irc_protocol = struct
   end
 
   let create ~command content = Message_type.to_string command ^ content ^ "\r\n"
-
   let fmt_incoming s = Printf.sprintf "<<< %s" s
 
   let fmt_outgoing fn =
@@ -23,13 +30,9 @@ module Irc_protocol = struct
     fn
 
   let join channel = fmt_outgoing (create ~command:JOIN channel)
-
   let nick username = fmt_outgoing (create ~command:NICK username)
-
   let pass password = create ~command:PASS password
-
   let privmsg content ~target = content |> Printf.sprintf "%s :%s" target |> create ~command:PRIVMSG
-
   let pong target = fmt_outgoing (create ~command:PONG target)
 end
 
@@ -73,10 +76,10 @@ let start (config : Config.t) =
 
     (match Message.parse input with
     | Ok message -> (
-        match message.command with
-        | PRIVMSG (target, message, sender) -> handle_privsmg ~target ~message ~sender
-        | PING (target, _) -> target |> Irc_protocol.pong |> output_string output_channel
-        | _ -> ())
+      match message.command with
+      | PRIVMSG (target, message, sender) -> handle_privsmg ~target ~message ~sender
+      | PING (target, _) -> target |> Irc_protocol.pong |> output_string output_channel
+      | _ -> ())
     | Error error -> error |> Printf.sprintf "[Twitch_irc] %s\n" |> failwith);
 
     flush_all ();

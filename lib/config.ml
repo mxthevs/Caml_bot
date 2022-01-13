@@ -1,4 +1,8 @@
-type t = { nick : string; pass : string; chan : string }
+type t = {
+  nick : string;
+  pass : string;
+  chan : string;
+}
 
 let empty = { nick = ""; pass = ""; chan = "" }
 

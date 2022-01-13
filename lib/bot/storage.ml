@@ -1,6 +1,13 @@
-type command = { name : string; reply : string }
+type command = {
+  name : string;
+  reply : string;
+}
 
-type database_command = { id : string; name : string; reply : string }
+type database_command = {
+  id : string;
+  name : string;
+  reply : string;
+}
 
 let ( let* ) = Lwt.bind
 
@@ -64,7 +71,9 @@ module Async = struct
 
     let* database_command = Db.dispatch (read_one ~name) in
     let command =
-      match database_command with Some { name; reply; _ } -> Some { name; reply } | None -> None
+      match database_command with
+      | Some { name; reply; _ } -> Some { name; reply }
+      | None -> None
     in
 
     Lwt.return command
@@ -87,29 +96,29 @@ module Async = struct
 
     match database_command with
     | Some command ->
-        let delete =
-          [%rapper
-            execute
-              {sql|
+      let delete =
+        [%rapper
+          execute
+            {sql|
               DELETE FROM commands
               WHERE name = %string{name}
             |sql}]
-        in
-        Db.dispatch (delete ~name:command.name)
+      in
+      Db.dispatch (delete ~name:command.name)
     | None -> raise (Command_not_found (Printf.sprintf "Command %s does not exists" name))
 end
 
 let index () =
-  try Ok (Lwt_main.run (Async.index ()))
-  with Db.Query_failed error -> Error (Printf.sprintf "Could not retrieve commands: %s" error)
+  try Ok (Lwt_main.run (Async.index ())) with
+  | Db.Query_failed error -> Error (Printf.sprintf "Could not retrieve commands: %s" error)
 
 let show name =
-  try Ok (Lwt_main.run (Async.show name))
-  with Db.Query_failed error -> Error (Printf.sprintf "Could not retrieve command: %s" error)
+  try Ok (Lwt_main.run (Async.show name)) with
+  | Db.Query_failed error -> Error (Printf.sprintf "Could not retrieve command: %s" error)
 
 let store ({ name; reply } : command) =
-  try Ok (Lwt_main.run (Async.store { name; reply }))
-  with Db.Query_failed error -> Error (Printf.sprintf "Could not create command: %s" error)
+  try Ok (Lwt_main.run (Async.store { name; reply })) with
+  | Db.Query_failed error -> Error (Printf.sprintf "Could not create command: %s" error)
 
 let destroy name =
   try Ok (Lwt_main.run (Async.destroy name)) with

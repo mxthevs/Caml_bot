@@ -69,11 +69,11 @@ let handle (text, _sender) =
   let rec flip_str acc = function
     | [] -> acc
     | letter :: rest ->
-        let flipped =
-          try snd (flip_table |> List.find (fun (fst, _) -> fst = letter))
-          with Not_found -> letter
-        in
-        flip_str (flipped ^ acc) rest
+      let flipped =
+        try snd (flip_table |> List.find (fun (fst, _) -> fst = letter)) with
+        | Not_found -> letter
+      in
+      flip_str (flipped ^ acc) rest
   in
 
   let input = text |> String.to_seq |> List.of_seq |> List.map string_of_char in

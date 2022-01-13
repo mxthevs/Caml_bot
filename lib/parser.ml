@@ -11,15 +11,20 @@ let take_until_exn c s =
   | Some (hd, _) -> hd
   | None -> Printf.sprintf "%s has no character %c" s c |> failwith
 
-let take_until c s = try take_until_exn c s with Failure _ -> ""
+let take_until c s =
+  try take_until_exn c s with
+  | Failure _ -> ""
 
 let take_after_exn c s =
   match lsplit2 s ~on:c with
   | Some (_, rest) -> rest
   | None -> Printf.sprintf "%s has no character %c" s c |> failwith
 
-let take_after c s = try take_after_exn c s with Failure _ -> ""
+let take_after c s =
+  try take_after_exn c s with
+  | Failure _ -> ""
 
 let split_on_first_space =
   let re = Str.regexp "[ \t\r\n]" in
-  function s -> Str.bounded_split re s 2
+  function
+  | s -> Str.bounded_split re s 2

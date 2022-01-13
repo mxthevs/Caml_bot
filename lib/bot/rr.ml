@@ -1,7 +1,5 @@
 let random_float ~bound = Random.float bound
-
 let random_int ~bound = Random.int bound
-
 let phrases = [ "Deu sorte"; "Quase"; "Passou perto"; "Por um triz"; "Passou raspando" ]
 
 let kaomojis = [ "ʘ‿ʘ"; "ಠ_ಠ"; "◔_◔"; "ಠ‿ಠ"; "(⊙_⊙)"; "ヽ(°〇°)ﾉ"; "(¬ ¬ )" ]
