@@ -2,8 +2,10 @@
  (name bot)
  (libraries
   str
-  piaf
   lwt
+  cohttp
+  cohttp-lwt
+  cohttp-lwt-unix
   uuidm
   caqti
   caqti-lwt
