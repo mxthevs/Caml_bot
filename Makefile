@@ -6,8 +6,6 @@ PROJECT = caml_bot
 DB_CONTAINER_NAME = caml_bot_db
 SECRETS_PATH = ./secrets.conf
 
-deps: $(opam_file)
-
 up:
 	docker-compose up -d
 
@@ -25,17 +23,23 @@ wait:
 	@echo "Go grab a cup of tea. Maybe look outside."
 	sleep 10
 
+deps:
+	esy
+
 build:
-	dune build
+	esy build
 
 dev:
-	dune build -w
+	esy watch
+
+clean:
+	rm -rf _esy esy.lock
+
+install: clean deps
 
 run: export DATABASE=$(PG_DATABASE)
 run: export USERNAME=$(PG_USERNAME)
 run: export PASSWORD=$(PG_PASSWORD)
 run: up wait
-	dune exec $(PROJECT) ${SECRETS_PATH}
+	esy x caml_bot ${SECRETS_PATH}
 
-debug:
-	dune exec $(PROJECT) ${SECRETS_PATH} -- --debug
