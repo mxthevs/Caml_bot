@@ -1,8 +1,8 @@
 {
   "editor.formatOnSave": true,
   "ocaml.sandbox": {
-    "kind": "opam",
-    "switch": "default"
+    "kind": "esy",
+    "root": "${workspaceFolder:Caml_bot}"
   },
   "[json]": {
     "editor.formatOnSave": false
