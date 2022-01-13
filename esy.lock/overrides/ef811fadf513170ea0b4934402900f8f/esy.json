@@ -1,0 +1,53 @@
+{
+  "name": "postgresql",
+  "version": "13.0.0",
+  "description": "PostgreSQL packaged for Esy",
+  "license": "PostgreSQL Licence",
+  "source": "https://ftp.postgresql.org/pub/source/v13.0/postgresql-13.0.tar.gz#8862cfd6bbf1d0fe94552d702bc581fa4f866873",
+  "override": {
+    "buildEnv": {
+      "CFLAGS": "-I#{@reason-native-web/esy-openssl.install / 'include'} $CFLAGS",
+      "LDFLAGS": "-L#{@reason-native-web/esy-openssl.lib} -lcrypto $LDFLAGS"
+    },
+    "build": [
+      "./configure #{os == 'windows' ? '--host x86_64-w64-mingw32': '' } --prefix=$cur__install --with-openssl --without-readline --without-ldap --disable-debug --enable-thread-safety --libdir=#{self.lib}",
+      "make"
+    ],
+    "install": "make install",
+    "buildsInSource": true,
+    "exportedEnv": {
+      "PKG_CONFIG_PATH": {
+        "val": "#{self.lib / 'pkgconfig'}",
+        "scope": "global"
+      },
+      "LDFLAGS": {
+        "scope": "global",
+        "val": "-L#{self.lib} -lpq $LDFLAGS"
+      },
+      "CPPFLAGS": {
+        "scope": "global",
+        "val": "-I#{self.install / 'include'}"
+      },
+      "LD_LIBRARY_PATH": {
+        "scope": "global",
+        "val": "#{self.lib}:$LD_LIBRARY_PATH"
+      },
+      "LIBRARY_PATH": {
+        "scope": "global",
+        "val": "#{self.lib}:$LIBRARY_PATH"
+      },
+      "CPATH": {
+        "scope": "global",
+        "val": "#{self.install / 'include'}:$CPATH"
+      },
+      "PATH": {
+        "scope": "global",
+        "val": "#{self.bin}:$PATH"
+      }
+    },
+    "dependencies": {
+      "esy-zlib": "esy-packages/esy-zlib",
+      "@reason-native-web/esy-openssl": "^1.1.1000"
+    }
+  }
+}
