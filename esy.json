@@ -47,6 +47,7 @@
     "@opam/utop": "*"
   },
   "resolutions": {
-    "esy-openssl": "esy-packages/esy-openssl#619ae2d46ca981ec26ab3287487ad98b157a01d1"
+    "esy-openssl": "esy-packages/esy-openssl#619ae2d46ca981ec26ab3287487ad98b157a01d1",
+    "@opam/conf-postgresql": "ManasJayanth/esy-postgres:esy.json#33cb05104f6c0eff27fab5c5317be773cb14c384"
   }
 }
