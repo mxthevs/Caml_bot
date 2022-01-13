@@ -1,2 +1,13 @@
+profile=conventional
 margin=100
 break-infix=fit-or-vertical
+if-then-else=fit-or-vertical
+align-constructors-decl=true
+cases-exp-indent=2
+type-decl=sparse
+break-cases=all
+cases-exp-indent=2
+nested-match=align
+let-and=sparse
+
+
