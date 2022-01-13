@@ -29,15 +29,18 @@
   "dependencies": {
     "ocaml": "4.12.x",
     "@opam/dune": "*",
-    "@opam/piaf": "0.1.0",
     "@opam/lwt": "5.4.2",
     "@opam/lwt_ppx": "2.0.2",
+    "@opam/cohttp": "5.0.0",
+    "@opam/cohttp-lwt": "5.0.0",
+    "@opam/cohttp-lwt-unix": "5.0.0",
     "@opam/uuidm": "0.9.7",
     "@opam/caqti": "1.6.0",
     "@opam/caqti-lwt": "1.6.0",
     "@opam/caqti-driver-postgresql": "1.6.0",
     "@opam/ppx_rapper": "3.0.0",
-    "@opam/ppx_rapper_lwt": "3.0.0"
+    "@opam/ppx_rapper_lwt": "3.0.0",
+    "@opam/tls": "*"
   },
   "devDependencies": {
     "@opam/ocaml-lsp-server": "*",
