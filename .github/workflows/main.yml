@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master, migrate-to-esy ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, migrate-to-esy ]
+    branches: [ master ]
 
   workflow_dispatch:
 
