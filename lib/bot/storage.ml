@@ -41,7 +41,7 @@ module Db = struct
 end
 
 module Async = struct
-  exception Command_not_found of string
+  exception Command_not_found
 
   let index () =
     let read_all =
@@ -91,6 +91,25 @@ module Async = struct
     let id = Uuidm.create `V4 |> Uuidm.to_string in
     Db.dispatch (insert { id; name; reply })
 
+  let update ({ name; reply } : command) =
+    let* database_command = show name in
+
+    match database_command with
+    | Some command ->
+      let update =
+        [%rapper
+          execute
+            {sql|
+              UPDATE commands
+              SET reply = %string{reply}
+              WHERE name = %string{name}
+            |sql}
+            record_in]
+      in
+
+      Db.dispatch (update { id = name; name; reply })
+    | None -> raise Command_not_found
+
   let destroy name =
     let* database_command = show name in
 
@@ -105,7 +124,7 @@ module Async = struct
             |sql}]
       in
       Db.dispatch (delete ~name:command.name)
-    | None -> raise (Command_not_found (Printf.sprintf "Command %s does not exists" name))
+    | None -> raise Command_not_found
 end
 
 let index () =
@@ -118,9 +137,14 @@ let show name =
 
 let store ({ name; reply } : command) =
   try Ok (Lwt_main.run (Async.store { name; reply })) with
-  | Db.Query_failed error -> Error (Printf.sprintf "Could not create command: %s" error)
+  | Db.Query_failed error -> Error (`Msg (Printf.sprintf "Could not create command: %s" error))
+
+let update ({ name; reply } : command) =
+  try Ok (Lwt_main.run (Async.update { name; reply })) with
+  | Async.Command_not_found -> Error (`Not_found (Printf.sprintf "Command %s not found" name))
+  | Db.Query_failed error -> Error (`Msg (Printf.sprintf "Could not create command: %s" error))
 
 let destroy name =
   try Ok (Lwt_main.run (Async.destroy name)) with
-  | Db.Query_failed error -> Error (Printf.sprintf "Could not delete command: %s" error)
-  | Async.Command_not_found error -> Error error
+  | Async.Command_not_found -> Error (`Not_found (Printf.sprintf "Command %s not found" name))
+  | Db.Query_failed error -> Error (`Msg (Printf.sprintf "Could not create command: %s" error))
