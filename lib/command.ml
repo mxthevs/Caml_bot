@@ -44,7 +44,6 @@ let find_builtin_command name command_list ~include_mod_only =
   let list = if include_mod_only then command_list else filter_mod_only_commands command_list in
   List.find_opt (fun cmd -> cmd.name = name) list
 
-let show_commands_handler = "comandos"
 let build_command_string acc el = if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el
 
 let show_builtin_commands command_list =
@@ -90,23 +89,30 @@ let extract_params message =
   else
     ("", "")
 
-let say (s : string) = Some s
+let is_authorized sender =
+  [ "mxthevsz"; "caml_bot" ]
+  |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii sender)
+  |> Option.is_some
 
 let parse message sender =
   let command, content = extract_params message in
 
   let reply =
-    if command = show_commands_handler then
+    match command with
+    | "cmd"
+    | "comandos" ->
       show_commands sender builtin_commands
-    else (* TODO: actually verify if the sender is a mod or not *)
-      let handler = find_builtin_command command builtin_commands ~include_mod_only:true in
+    | other -> (
+      let maybe_command =
+        find_builtin_command command builtin_commands ~include_mod_only:(is_authorized sender)
+      in
 
-      match handler with
+      match maybe_command with
       | Some { handler; _ } -> parse_as_builtin (content, sender) ~handler
-      | None ->
-      match parse_as_external (command, sender) with
-      | Some { reply; _ } -> reply
-      | None -> Printf.sprintf "Não conheço esse comando \"!%s\", %s" command sender
+      | None -> (
+        match parse_as_external (command, sender) with
+        | Some { reply; _ } -> reply
+        | None -> Printf.sprintf "Não conheço esse comando \"!%s\", %s" command sender))
   in
 
   let open Reply in
