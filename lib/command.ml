@@ -1,9 +1,8 @@
-type strtup2 = string * string
-type handler = string * string -> string
+type payload = string * string
 
 type builtin_command = {
   name : string;
-  handler : handler;
+  handler : string * string -> string;
   mod_only : bool;
 }
 
@@ -68,9 +67,9 @@ let show_commands sender command_list =
   ^ " "
   ^ show_external_commands ()
 
-let parse_as_builtin ((message, sender) : strtup2) ~handler : string = handler (message, sender)
+let parse_as_builtin ((message, sender) : payload) ~handler : string = handler (message, sender)
 
-let parse_as_external ((message, _sender) : strtup2) =
+let parse_as_external ((message, _sender) : payload) =
   match Bot.Storage.show message with
   | Ok command -> command
   | Error _ -> None
