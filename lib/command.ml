@@ -32,6 +32,7 @@ end
 let builtin_commands =
   [
     { name = "addcmd"; handler = Bot.Addcmd.handle; mod_only = true };
+    { name = "updcmd"; handler = Bot.Updcmd.handle; mod_only = true };
     { name = "delcmd"; handler = Bot.Delcmd.handle; mod_only = true };
     { name = "flip"; handler = Bot.Flip.handle; mod_only = false };
     { name = "clima"; handler = Bot.Wttr.handle; mod_only = false };
@@ -112,7 +113,7 @@ let parse message sender =
       | None -> (
         match parse_as_external (command, sender) with
         | Some { reply; _ } -> reply
-        | None -> Printf.sprintf "Não conheço esse comando \"!%s\", %s" command sender))
+        | None -> Printf.sprintf "Não conheço esse comando %s, %s" command sender))
   in
 
   let open Reply in
