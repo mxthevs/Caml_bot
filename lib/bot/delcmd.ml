@@ -14,5 +14,6 @@ let handle (text, _sender) =
   | Some command -> (
     match Storage.destroy command with
     | Ok () -> "Comando deletado com sucesso. !delcmd é um comando apenas para moderadores"
-    | Error _ -> "Não foi possível deletar o comando. Tem certeza que ele existe?")
+    | Error (`Not_found _) -> "O comando que você está tentando deletar não existe"
+    | Error (`Msg _) -> "Não foi possível deletar o comando e a culpa é do criador desse bot")
   | None -> "Uso: `!delcmd $1` - Esse é um comando apenas para moderadores"
