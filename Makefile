@@ -40,6 +40,7 @@ install: clean deps
 run: export DATABASE=$(PG_DATABASE)
 run: export USERNAME=$(PG_USERNAME)
 run: export PASSWORD=$(PG_PASSWORD)
+run: export PORT=$(PG_PORT)
 run: up wait
-	esy x caml_bot ${SECRETS_PATH}
+	esy x ${PROJECT} ${SECRETS_PATH}
 
