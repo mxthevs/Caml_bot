@@ -21,7 +21,7 @@ psql:
 
 wait:
 	@echo "Go grab a cup of tea. Maybe look outside."
-	sleep 10
+	sleep 5
 
 deps:
 	esy
