@@ -87,6 +87,7 @@ let extract_params message =
     ("", "")
 
 let is_authorized sender =
+  (* TODO: verify this dynamically *)
   [ "mxthevsz"; "caml_bot" ]
   |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii sender)
   |> Option.is_some
