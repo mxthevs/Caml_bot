@@ -46,8 +46,8 @@ let find_builtin_command name command_list ~include_mod_only =
 
 let build_command_string acc el = if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el
 
-let show_builtin_commands command_list =
-  command_list
+let show_builtin_commands () =
+  builtin_commands
   |> filter_mod_only_commands
   |> List.map (fun cmd -> cmd.name)
   |> List.fold_left build_command_string ""
@@ -60,12 +60,8 @@ let show_external_commands () =
     |> List.fold_left build_command_string ""
   | Error _ -> ""
 
-let show_commands sender command_list =
-  sender
-  ^ ", os comandos são: "
-  ^ show_builtin_commands command_list
-  ^ " "
-  ^ show_external_commands ()
+let show_commands sender =
+  "@" ^ sender ^ ", os comandos são: " ^ show_builtin_commands () ^ " " ^ show_external_commands ()
 
 let parse_as_builtin ((message, sender) : payload) ~handler : string =
   handler (String.trim message, sender)
@@ -102,7 +98,7 @@ let parse message sender =
     match command with
     | "cmd"
     | "comandos" ->
-      show_commands sender builtin_commands
+      show_commands sender
     | other -> (
       let maybe_command =
         find_builtin_command command builtin_commands ~include_mod_only:(is_authorized sender)
