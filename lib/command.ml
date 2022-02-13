@@ -120,8 +120,13 @@ let parse message sender =
   match get_reply reply with
   | Sender, parsed_reply -> Some (sender ^ ", " ^ parsed_reply)
   | FstOrSender, parsed_reply ->
-    let has_content = String.length content > 0 in
-    let fst = List.nth (Parser.split_on_first_space content) 0 in
-    let tagged = if has_content then fst else sender in
+    let maybe_fst = List.nth_opt (Parser.split_on_first_space content) 0 in
+
+    let tagged =
+      match maybe_fst with
+      | Some fst -> fst
+      | None -> sender
+    in
+
     Some (tagged ^ ", " ^ parsed_reply)
   | Noop, parsed_reply -> Some parsed_reply
