@@ -67,10 +67,11 @@ let show_commands sender command_list =
   ^ " "
   ^ show_external_commands ()
 
-let parse_as_builtin ((message, sender) : payload) ~handler : string = handler (message, sender)
+let parse_as_builtin ((message, sender) : payload) ~handler : string =
+  handler (String.trim message, sender)
 
 let parse_as_external ((message, _sender) : payload) =
-  match Bot.Storage.show message with
+  match Bot.Storage.show (String.trim message) with
   | Ok command -> command
   | Error _ -> None
 
