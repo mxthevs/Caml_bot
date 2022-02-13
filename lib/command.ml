@@ -12,7 +12,7 @@ module Reply = struct
     | FstOrSender
     | Noop
 
-  type t = funcall * string list
+  type t = funcall * string
 
   let funcall_of_string = function
     | {|%user()|} -> Sender
