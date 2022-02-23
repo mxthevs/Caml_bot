@@ -20,6 +20,7 @@ module Reply = struct
     | _ -> Noop
 
   let get_reply str =
+    (* TODO: use a proper regex *)
     let has_function = String.contains str '(' && String.contains str ')' in
     let funcall = if has_function then Parser.split_on_first_space str else [ str ] in
 
