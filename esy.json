@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "ocaml": "4.12.x",
-    "@opam/dune": "*",
+    "@opam/dune": "< 3.0.0",
     "@opam/lwt": "5.4.2",
     "@opam/lwt_ppx": "2.0.2",
     "@opam/cohttp": "5.0.0",
