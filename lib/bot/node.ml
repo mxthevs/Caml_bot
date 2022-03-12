@@ -21,16 +21,22 @@ let handle' input =
       ("node", [| "node"; "-e"; "console.log(" ^ input ^ ")" |])
   in
 
-  (* TODO: recover error information *)
+  (* TODO: Twitch does not support new lines *)
+  let output = read_file file in
   let result =
     match status with
     | Unix.WSTOPPED sig_ -> Printf.sprintf "Process was stopped by signal %d" sig_
     | Unix.WSIGNALED sig_ -> Printf.sprintf "Process was killed by signal %d" sig_
-    | Unix.WEXITED code when code != 0 -> Printf.sprintf "Process exited with %d code" code
+    | Unix.WEXITED code when code != 0 ->
+      List.nth
+        (output
+        |> String.split_on_char '\n'
+        |> List.filteri (fun i _ -> i = 4)
+        |> List.map String.trim)
+        0
     | Unix.WEXITED _ ->
-      let content = read_file file in
-      let () = Sys.remove file in
-      content
+      Sys.remove file;
+      output
   in
 
   Lwt.return result
