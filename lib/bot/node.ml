@@ -13,7 +13,7 @@ let handle' input =
   let file = Printf.sprintf "tmp/%d.out" (int_of_float (Unix.time ())) in
   let out_channel = open_out file in
 
-  (** TODO: maybe this is bad *)
+  (* TODO: maybe this is bad *)
   let* status =
     Process.exec
       ~stdout:(`FD_copy (Unix.descr_of_out_channel out_channel))
@@ -21,7 +21,7 @@ let handle' input =
       ("node", [| "node"; "-e"; "console.log(" ^ input ^ ")" |])
   in
 
-  (** TODO: recover error information *)
+  (* TODO: recover error information *)
   let result =
     match status with
     | Unix.WSTOPPED sig_ -> Printf.sprintf "Process was stopped by signal %d" sig_
