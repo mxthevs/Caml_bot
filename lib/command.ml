@@ -37,6 +37,7 @@ let builtin_commands =
     { name = "flip"; handler = Bot.Flip.handle; mod_only = false };
     { name = "clima"; handler = Bot.Wttr.handle; mod_only = false };
     { name = "roleta"; handler = Bot.Rr.handle; mod_only = false };
+    { name = "node"; handler = Bot.Node.handle; mod_only = true };
   ]
 
 let filter_mod_only_commands commands = List.filter (fun cmd -> not cmd.mod_only) commands

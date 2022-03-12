@@ -7,3 +7,6 @@ _esy
 
 secrets.conf
 .env
+
+tmp/*
+!tmp/.gitkeep
