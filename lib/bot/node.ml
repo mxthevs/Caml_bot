@@ -41,4 +41,4 @@ let handle' input =
 
   Lwt.return result
 
-let handle (input, _sender) = Lwt_main.run (handle' input)
+let handle ~args ~user = Lwt_main.run (handle' args)

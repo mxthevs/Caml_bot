@@ -1,14 +1,14 @@
 module Reply = struct
   type funcall =
-    | Sender
-    | FstOrSender
+    | User
+    | FstOrUser
     | Noop
 
   type t = funcall * string
 
   let funcall_of_string = function
-    | {|%user()|} -> Sender
-    | {|%or(fst,user)|} -> FstOrSender
+    | {|%user()|} -> User
+    | {|%or(fst,user)|} -> FstOrUser
     | _ -> Noop
 
   let get_reply str =
@@ -23,7 +23,7 @@ module Reply = struct
 end
 
 module type HANDLER = sig
-  val handle : string * string -> string
+  val handle : args:string -> user:string -> string
 end
 
 type t =
@@ -77,12 +77,7 @@ let list_external () =
     |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
   | Error _ -> ""
 
-let list sender = "@" ^ sender ^ ", os comandos são: " ^ list_public () ^ list_external ()
-
-let get_command name ~include_mod_only =
-  match include_mod_only with
-  | true -> List.find (fun cmd -> to_string cmd = name) all
-  | false -> List.find (fun cmd -> to_string cmd = name) public
+let list ~to_:user = "@" ^ user ^ ", os comandos são: " ^ list_public () ^ list_external ()
 
 let get_handler t : (module HANDLER) =
   match t with
@@ -94,50 +89,50 @@ let get_handler t : (module HANDLER) =
   | Rr -> (module Bot.Rr)
   | Node `Mod_only -> (module Bot.Node)
 
-let parse (message, sender) ~handler : string = handler (String.trim message, sender)
+let parse ~args ~user ~handler : string = handler ~args:(String.trim args) ~user
 
-let parse_as_external (message, _sender) =
-  match Bot.Storage.show (String.trim message) with
+let parse_as_external ~args ~user =
+  match Bot.Storage.show (String.trim args) with
   | Ok command -> command
   | Error _ -> None
 
-let is_authorized sender =
+let is_authorized user =
   (* TODO: verify this dynamically *)
   [ "mxthevsz"; "caml_bot" ]
-  |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii sender)
+  |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii user)
   |> Option.is_some
 
-let parse message sender =
-  let name, content = Helpers.extract_params message in
+let parse message user =
+  let name, args = Helpers.extract_params message in
 
   let reply =
     match name with
-    | "comandos" -> list sender
-    | other -> (
+    | "comandos" -> list ~to_:user
+    | _ -> (
       let command = of_string name in
       match command with
       | Ok command ->
         let module Handler = (val get_handler command) in
-        if is_mod_only command && (not @@ is_authorized sender) then
-          Printf.sprintf "@%s, esse comando é apenas para usuários autorizados" sender
+        if is_mod_only command && (not @@ is_authorized user) then
+          Printf.sprintf "@%s, esse comando é apenas para usuários autorizados" user
         else
-          parse (content, sender) ~handler:Handler.handle
+          parse ~args ~user ~handler:Handler.handle
       | Error () -> (
-        match parse_as_external (name, sender) with
+        match parse_as_external ~args ~user with
         | Some { reply; _ } -> reply
-        | None -> Printf.sprintf "@%s, Não conheço esse comando %s" sender name))
+        | None -> Printf.sprintf "@%s, Não conheço esse comando %s" user name))
   in
 
   let open Reply in
   match get_reply reply with
-  | Sender, parsed_reply -> Some (sender ^ ", " ^ parsed_reply)
-  | FstOrSender, parsed_reply ->
-    let maybe_fst = List.nth_opt (Parser.split_on_first_space content) 0 in
+  | User, parsed_reply -> Some (user ^ ", " ^ parsed_reply)
+  | FstOrUser, parsed_reply ->
+    let maybe_fst = List.nth_opt (Parser.split_on_first_space user) 0 in
 
     let tagged =
       match maybe_fst with
       | Some fst -> fst
-      | None -> sender
+      | None -> user
     in
 
     Some ("@" ^ tagged ^ ", " ^ parsed_reply)
