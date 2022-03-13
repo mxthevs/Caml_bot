@@ -1,11 +1,3 @@
-type payload = string * string
-
-type builtin_command = {
-  name : string;
-  handler : string * string -> string;
-  mod_only : bool;
-}
-
 module Reply = struct
   type funcall =
     | Sender
@@ -30,64 +22,84 @@ module Reply = struct
     | arguments -> (Noop, List.nth arguments 0)
 end
 
-let builtin_commands =
-  [
-    { name = "addcmd"; handler = Bot.Addcmd.handle; mod_only = true };
-    { name = "updcmd"; handler = Bot.Updcmd.handle; mod_only = true };
-    { name = "delcmd"; handler = Bot.Delcmd.handle; mod_only = true };
-    { name = "flip"; handler = Bot.Flip.handle; mod_only = false };
-    { name = "clima"; handler = Bot.Wttr.handle; mod_only = false };
-    { name = "roleta"; handler = Bot.Rr.handle; mod_only = false };
-    { name = "node"; handler = Bot.Node.handle; mod_only = true };
-  ]
+module type HANDLER = sig
+  val handle : string * string -> string
+end
 
-let filter_mod_only_commands commands = List.filter (fun cmd -> not cmd.mod_only) commands
+type t =
+  | Addcmd of [ `Mod_only ]
+  | Updcmd of [ `Mod_only ]
+  | Delcmd of [ `Mod_only ]
+  | Flip
+  | Wttr
+  | Rr
+  | Node   of [ `Mod_only ]
 
-let find_builtin_command name command_list ~include_mod_only =
-  let list = if include_mod_only then command_list else filter_mod_only_commands command_list in
-  List.find_opt (fun cmd -> cmd.name = name) list
+let of_string = function
+  | "addcmd" -> Ok (Addcmd `Mod_only)
+  | "updcmd" -> Ok (Updcmd `Mod_only)
+  | "delcmd" -> Ok (Delcmd `Mod_only)
+  | "flip" -> Ok Flip
+  | "clima" -> Ok Wttr
+  | "roleta" -> Ok Rr
+  | "node" -> Ok (Node `Mod_only)
+  | _ -> Error ()
 
-let build_command_string acc el = if acc = "" then acc ^ "!" ^ el else acc ^ " !" ^ el
+let to_string = function
+  | Addcmd `Mod_only -> "addcmd"
+  | Updcmd `Mod_only -> "updcmd"
+  | Delcmd `Mod_only -> "delcmd"
+  | Flip -> "flip"
+  | Wttr -> "clima"
+  | Rr -> "roleta"
+  | Node `Mod_only -> "node"
 
-let show_builtin_commands () =
-  builtin_commands
-  |> filter_mod_only_commands
-  |> List.map (fun cmd -> cmd.name)
-  |> List.fold_left build_command_string ""
+let is_mod_only = function
+  | Addcmd `Mod_only -> true
+  | Updcmd `Mod_only -> true
+  | Delcmd `Mod_only -> true
+  | Flip -> false
+  | Wttr -> false
+  | Rr -> false
+  | Node `Mod_only -> true
 
-let show_external_commands () =
+let all = [ Addcmd `Mod_only; Updcmd `Mod_only; Delcmd `Mod_only; Flip; Wttr; Rr; Node `Mod_only ]
+let public = List.filter (fun command -> not @@ is_mod_only command) all
+
+let list_public () =
+  public |> List.map to_string |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
+
+let list_external () =
   match Bot.Storage.index () with
   | Ok command_list ->
     command_list
     |> List.map (fun (cmd : Bot.Storage.command) -> cmd.name)
-    |> List.fold_left build_command_string ""
+    |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
   | Error _ -> ""
 
-let show_commands sender =
-  "@" ^ sender ^ ", os comandos são: " ^ show_builtin_commands () ^ " " ^ show_external_commands ()
+let list sender = "@" ^ sender ^ ", os comandos são: " ^ list_public () ^ list_external ()
 
-let parse_as_builtin ((message, sender) : payload) ~handler : string =
-  handler (String.trim message, sender)
+let get_command name ~include_mod_only =
+  match include_mod_only with
+  | true -> List.find (fun cmd -> to_string cmd = name) all
+  | false -> List.find (fun cmd -> to_string cmd = name) public
 
-let parse_as_external ((message, _sender) : payload) =
+let get_handler t : (module HANDLER) =
+  match t with
+  | Addcmd `Mod_only -> (module Bot.Addcmd)
+  | Updcmd `Mod_only -> (module Bot.Updcmd)
+  | Delcmd `Mod_only -> (module Bot.Delcmd)
+  | Flip -> (module Bot.Flip)
+  | Wttr -> (module Bot.Wttr)
+  | Rr -> (module Bot.Rr)
+  | Node `Mod_only -> (module Bot.Node)
+
+let parse (message, sender) ~handler : string = handler (String.trim message, sender)
+
+let parse_as_external (message, _sender) =
   match Bot.Storage.show (String.trim message) with
   | Ok command -> command
   | Error _ -> None
-
-let extract_params message =
-  let open Parser in
-  let open Helpers in
-  if message <> "" && message.[0] = '!' then
-    let command =
-      if has_char ' ' message then
-        message |> skip 1 |> take_until ' '
-      else
-        message |> skip 1 |> String.trim
-    in
-    let rest = message |> take_after ' ' in
-    (command, rest)
-  else
-    ("", "")
 
 let is_authorized sender =
   (* TODO: verify this dynamically *)
@@ -96,24 +108,24 @@ let is_authorized sender =
   |> Option.is_some
 
 let parse message sender =
-  let command, content = extract_params message in
+  let name, content = Helpers.extract_params message in
 
   let reply =
-    match command with
-    | "cmd"
-    | "comandos" ->
-      show_commands sender
+    match name with
+    | "comandos" -> list sender
     | other -> (
-      let maybe_command =
-        find_builtin_command command builtin_commands ~include_mod_only:(is_authorized sender)
-      in
-
-      match maybe_command with
-      | Some { handler; _ } -> parse_as_builtin (content, sender) ~handler
-      | None -> (
-        match parse_as_external (command, sender) with
+      let command = of_string name in
+      match command with
+      | Ok command ->
+        let module Handler = (val get_handler command) in
+        if is_mod_only command && (not @@ is_authorized sender) then
+          Printf.sprintf "@%s, esse comando é apenas para usuários autorizados" sender
+        else
+          parse (content, sender) ~handler:Handler.handle
+      | Error () -> (
+        match parse_as_external (name, sender) with
         | Some { reply; _ } -> reply
-        | None -> Printf.sprintf "Não conheço esse comando %s, %s" command sender))
+        | None -> Printf.sprintf "@%s, Não conheço esse comando %s" sender name))
   in
 
   let open Reply in
@@ -128,5 +140,5 @@ let parse message sender =
       | None -> sender
     in
 
-    Some (tagged ^ ", " ^ parsed_reply)
+    Some ("@" ^ tagged ^ ", " ^ parsed_reply)
   | Noop, parsed_reply -> Some parsed_reply
