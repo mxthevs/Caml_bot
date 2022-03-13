@@ -73,7 +73,7 @@ let list_external () =
   match Bot.Storage.index () with
   | Ok command_list ->
     command_list
-    |> List.map (fun (cmd : Bot.Storage.command) -> cmd.name)
+    |> List.map (fun (cmd : Bot.Storage.external_command) -> cmd.name)
     |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
   | Error _ -> ""
 

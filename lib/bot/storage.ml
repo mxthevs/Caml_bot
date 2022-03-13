@@ -1,4 +1,4 @@
-type command = {
+type external_command = {
   name : string;
   reply : string;
 }
@@ -16,8 +16,16 @@ module Db = struct
 
   exception Query_failed of string
 
+  let connection_url =
+    let username = Sys.getenv "USERNAME" in
+    let password = Sys.getenv "PASSWORD" in
+    let database = Sys.getenv "DATABASE" in
+    let port = Sys.getenv "PORT" in
+
+    Printf.sprintf "postgresql://%s:%s@localhost:%s/%s" username password port database
+
   let pool =
-    match Caqti_lwt.connect_pool ~max_size:10 (Uri.of_string Config.Database.connection_url) with
+    match Caqti_lwt.connect_pool ~max_size:10 (Uri.of_string connection_url) with
     | Ok pool -> pool
     | Error error -> failwith (Caqti_error.show error)
 
@@ -78,7 +86,7 @@ module Async = struct
 
     Lwt.return command
 
-  let store ({ name; reply } : command) =
+  let store ({ name; reply } : external_command) =
     let insert =
       [%rapper
         execute
@@ -91,7 +99,7 @@ module Async = struct
     let id = Uuidm.create `V4 |> Uuidm.to_string in
     Db.dispatch (insert { id; name; reply })
 
-  let update ({ name; reply } : command) =
+  let update ({ name; reply } : external_command) =
     let* database_command = show name in
 
     match database_command with
@@ -135,11 +143,11 @@ let show name =
   try Ok (Lwt_main.run (Async.show name)) with
   | Db.Query_failed error -> Error (Printf.sprintf "Could not retrieve command: %s" error)
 
-let store ({ name; reply } : command) =
+let store ({ name; reply } : external_command) =
   try Ok (Lwt_main.run (Async.store { name; reply })) with
   | Db.Query_failed error -> Error (`Msg (Printf.sprintf "Could not create command: %s" error))
 
-let update ({ name; reply } : command) =
+let update ({ name; reply } : external_command) =
   try Ok (Lwt_main.run (Async.update { name; reply })) with
   | Async.Command_not_found -> Error (`Not_found (Printf.sprintf "Command %s not found" name))
   | Db.Query_failed error -> Error (`Msg (Printf.sprintf "Could not create command: %s" error))
