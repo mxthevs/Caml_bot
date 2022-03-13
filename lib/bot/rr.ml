@@ -4,7 +4,7 @@ let phrases = [ "Deu sorte"; "Quase"; "Passou perto"; "Por um triz"; "Passou ras
 
 let kaomojis = [ "ʘ‿ʘ"; "ಠ_ಠ"; "◔_◔"; "ಠ‿ಠ"; "(⊙_⊙)"; "ヽ(°〇°)ﾉ"; "(¬ ¬ )" ]
 
-let handle (_text, sender) =
+let handle ~args ~user =
   Random.init (Int.of_float (Unix.time ()));
 
   let chance = random_float ~bound:0.6 in
@@ -12,7 +12,7 @@ let handle (_text, sender) =
   let kaomoji = List.nth kaomojis (random_int ~bound:(List.length kaomojis)) in
 
   let reply =
-    if chance < 0.1 then "/timeout " ^ sender ^ " 1" else message ^ ", " ^ sender ^ " " ^ kaomoji
+    if chance < 0.1 then "/timeout " ^ user ^ " 1" else message ^ ", " ^ user ^ " " ^ kaomoji
   in
 
   reply

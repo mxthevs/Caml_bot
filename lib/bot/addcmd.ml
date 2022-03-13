@@ -3,9 +3,9 @@ let split_on_first_space =
   function
   | s -> Str.bounded_split re s 2
 
-let handle (text, _sender) =
+let handle ~args ~user =
   let params =
-    match split_on_first_space text with
+    match split_on_first_space args with
     | [ name; reply ] -> Some (name, reply)
     | _ -> None
   in
