@@ -31,6 +31,20 @@ let has_char c s =
   | Some _ -> true
   | None -> false
 
+let extract_params message =
+  let open Parser in
+  if message <> "" && message.[0] = '!' then
+    let command =
+      if has_char ' ' message then
+        message |> skip 1 |> take_until ' '
+      else
+        message |> skip 1 |> String.trim
+    in
+    let rest = message |> take_after ' ' in
+    (command, rest)
+  else
+    ("", "")
+
 let read_file file_path =
   let ch = open_in file_path in
   let n = in_channel_length ch in
