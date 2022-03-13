@@ -20,8 +20,9 @@ module Reply = struct
     | _ -> Noop
 
   let get_reply str =
-    (* TODO: use a proper regex *)
-    let has_function = String.contains str '(' && String.contains str ')' in
+    (* TODO: capture `(` and `)` correctly instead of using `.`*)
+    let re = Str.regexp {|^%\b+.\(\b+\)?\(,\)?\(\b+\)?.|} in
+    let has_function = Str.string_match re str 0 in
     let funcall = if has_function then Parser.split_on_first_space str else [ str ] in
 
     match funcall with
