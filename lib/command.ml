@@ -125,6 +125,7 @@ let parse message user =
         | None -> Printf.sprintf "@%s, Não conheço esse comando %s" user name))
   in
 
+  (* TODO: return result instead of option *)
   let open Reply in
   match get_reply reply with
   | User, parsed_reply -> Some (user ^ ", " ^ parsed_reply)
