@@ -98,6 +98,8 @@ let parse_as_external ~args ~user =
 
 let is_authorized user =
   (* TODO: verify this dynamically *)
+  (* Create the `trusted user` concept *)
+  (* !trust ${user} || !untrust ${user} *)
   [ "mxthevsz"; "caml_bot" ]
   |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii user)
   |> Option.is_some
