@@ -76,14 +76,12 @@ let start (config : Config.t) =
 
     let handle_privsmg ~target ~message ~sender =
       if message.[0] = '!' then
-        let command = Command.parse message sender in
-
-        match command with
-        | Some reply ->
+        match Command.handle ~message ~user:sender with
+        | Ok reply ->
           Irc_protocol.privmsg ~target reply
           |> Irc_protocol.fmt_outgoing ~debug:config.debug
           |> output_string output_channel
-        | None -> ()
+        | Error () -> ()
     in
 
     (match Message.parse input with

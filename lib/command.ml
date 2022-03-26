@@ -91,8 +91,8 @@ let get_handler t : (module HANDLER) =
 
 let parse ~args ~user ~handler : string = handler ~args:(String.trim args) ~user
 
-let parse_as_external ~args ~user =
-  match Bot.Storage.show (String.trim args) with
+let parse_as_external ~command =
+  match Bot.Storage.show command with
   | Ok command -> command
   | Error _ -> None
 
@@ -104,39 +104,34 @@ let is_authorized user =
   |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii user)
   |> Option.is_some
 
-let parse message user =
+let handle ~message ~user =
   let name, args = Helpers.extract_params message in
 
-  let reply =
+  let response =
     match name with
-    | "comandos" -> list ~to_:user
+    | "comandos" -> Some (list ~to_:user)
     | _ -> (
       let command = of_string name in
       match command with
       | Ok command ->
         let module Handler = (val get_handler command) in
         if is_mod_only command && (not @@ is_authorized user) then
-          Printf.sprintf "@%s, esse comando é apenas para usuários autorizados" user
+          Some (Printf.sprintf "@%s, esse comando é apenas para usuários autorizados" user)
         else
-          parse ~args ~user ~handler:Handler.handle
+          Some (parse ~handler:Handler.handle ~args ~user)
       | Error () -> (
-        match parse_as_external ~args ~user with
-        | Some { reply; _ } -> reply
-        | None -> Printf.sprintf "@%s, Não conheço esse comando %s" user name))
+        match parse_as_external ~command:(String.trim name) with
+        | Some { reply; _ } -> Some reply
+        | None -> None))
   in
 
-  (* TODO: return result instead of option *)
-  let open Reply in
-  match get_reply reply with
-  | User, parsed_reply -> Some (user ^ ", " ^ parsed_reply)
-  | FstOrUser, parsed_reply ->
-    let maybe_fst = List.nth_opt (Parser.split_on_first_space user) 0 in
-
-    let tagged =
-      match maybe_fst with
-      | Some fst -> fst
-      | None -> user
-    in
-
-    Some ("@" ^ tagged ^ ", " ^ parsed_reply)
-  | Noop, parsed_reply -> Some parsed_reply
+  match response with
+  | Some response -> (
+    let open Reply in
+    match get_reply response with
+    | User, parsed_reply -> Ok (user ^ ", " ^ parsed_reply)
+    | FstOrUser, parsed_reply ->
+      let tagged = List.nth_opt (Parser.split_on_first_space args) 0 in
+      Ok (Option.value tagged ~default:user ^ ", " ^ parsed_reply)
+    | Noop, parsed_reply -> Ok parsed_reply)
+  | None -> Error ()
