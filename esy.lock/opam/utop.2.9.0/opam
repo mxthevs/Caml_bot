@@ -6,7 +6,7 @@ homepage: "https://github.com/ocaml-community/utop"
 bug-reports: "https://github.com/ocaml-community/utop/issues"
 doc: "https://ocaml-community.github.io/utop/"
 depends: [
-  "ocaml" {>= "4.03.0" & < "4.13"}
+  "ocaml" {>= "4.03.0"}
   "base-unix"
   "base-threads"
   "ocamlfind" {>= "1.7.2"}
@@ -31,12 +31,12 @@ OCaml.  It can run in a terminal or in Emacs. It supports line
 edition, history, real-time and context sensitive completion, colors,
 and more.  It integrates with the Tuareg mode in Emacs.
 """
-x-commit-hash: "a5ff52bbf608e1112b5c0d41a36e3267f39f4084"
 url {
   src:
-    "https://github.com/ocaml-community/utop/releases/download/2.7.0/utop-2.7.0.tbz"
+    "https://github.com/ocaml-community/utop/releases/download/2.9.0/utop-2.9.0.tbz"
   checksum: [
-    "sha256=e068ac53df267c3cc0f2f69bbc204404f0362cc4e6472a1fc547e326a63c3fdd"
-    "sha512=fc6237ff3e80c509a698872e5571b58e914d24c308a634e45972b7f104d960f17eba507535f56fcec972ea8c71143a8036cd122618e63cdf77fb6034297924df"
+    "sha256=cd7bba0576f9f1a303d645dce07ea6577aedc1c13d315b312f6a5fc356304d9e"
+    "sha512=81ca5814681f40c44adb4db5e840f00afc512562dc577e87ad7bcf95e65442bf24a6485db85b95a7838b47c8c9ce1b5cd3c3775bfe7dfa8c5658066fe2ab55a8"
   ]
 }
+x-commit-hash: "676e2cd6545fd327e02330d1ccb20c02d6b26eab"

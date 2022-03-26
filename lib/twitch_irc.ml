@@ -23,7 +23,6 @@ module Irc_protocol = struct
   end
 
   let create ~command content = Message_type.to_string command ^ content ^ "\r\n"
-  let fmt_incoming s = Printf.sprintf "<<< %s" s
 
   let fmt_outgoing fn ~debug =
     let () =

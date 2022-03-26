@@ -35,6 +35,9 @@ dev:
 clean:
 	rm -rf _esy esy.lock
 
+dce:
+	esy dce
+
 install: clean deps
 
 run: export DATABASE=$(PG_DATABASE)

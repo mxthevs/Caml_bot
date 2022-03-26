@@ -20,15 +20,16 @@
       "PATH": "/opt/homebrew/bin:$PATH"
     },
     "build": [
-      "dune build -p #{self.name}"
+      "dune build -p #{self.name} @check @all"
     ]
   },
   "scripts": {
-    "watch": "dune build -p #{self.name} -w"
+    "watch": "dune build -p #{self.name} @check @all -w",
+    "dce": "reanalyze.exe -dce-cmt #{self.target_dir}"
   },
   "dependencies": {
-    "ocaml": "4.12.x",
-    "@opam/dune": "< 3.0.0",
+    "ocaml": "4.13.x",
+    "@opam/dune": "2.9.3",
     "@opam/lwt": "5.4.2",
     "@opam/lwt_ppx": "2.0.2",
     "@opam/cohttp": "5.0.0",
@@ -47,7 +48,8 @@
     "@opam/ocamlformat": "*",
     "@opam/merlin": "*",
     "@opam/ocamlformat-rpc": "*",
-    "@opam/utop": "*"
+    "@opam/utop": "*",
+    "@opam/reanalyze": "*"
   },
   "resolutions": {
     "@opam/ctypes-foreign": {

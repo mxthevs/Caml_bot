@@ -7,18 +7,6 @@ type t = {
 
 let empty = { nick = ""; pass = ""; chan = ""; debug = false }
 
-let to_string config =
-  Printf.sprintf
-    {|
-{
-  twitch.nick = %s;
-  twitch.pass = [REDACTED];
-  twitch.chan = %s;
-  client.debug = %b
-}
-|}
-    config.nick config.chan config.debug
-
 let from_file file_path =
   let update_config config pair =
     match pair with
