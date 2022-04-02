@@ -35,7 +35,7 @@ let extract_prefix str =
   else
     (None, str)
 
-let extract_user_from_prefix str = str |> Parser.take_until '!'
+let extract_user_from_prefix = String_utils.take_until '!'
 
 let extract_trail str =
   try
@@ -48,9 +48,9 @@ let extract_trail str =
 
 exception ParseError of string * string
 
-let split_spaces str = Helpers.split ~str ~c:' '
-let split_comma str = Helpers.split ~str ~c:','
-let split_space1 str = Helpers.split1_exn ~str ~c:' '
+let split_spaces str = String_utils.split ~str ~c:' '
+let split_comma str = String_utils.split ~str ~c:','
+let split_space1 str = String_utils.split1_exn ~str ~c:' '
 
 (* split parameters into tokens separated by spaces. If a trail, prefixed
    by ':', exists, it is the last token *)

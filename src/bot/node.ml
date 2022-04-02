@@ -2,13 +2,6 @@ module Process = Lwt_process
 
 let ( let* ) = Lwt.bind
 
-let read_file file_path =
-  let ch = open_in file_path in
-  let n = in_channel_length ch in
-  let s = really_input_string ch n in
-  close_in ch;
-  s
-
 let handle' input =
   let file = Printf.sprintf "tmp/%d.out" (int_of_float (Unix.time ())) in
   let out_channel = open_out file in
@@ -22,7 +15,7 @@ let handle' input =
   in
 
   (* TODO: Twitch does not support new lines *)
-  let output = read_file file in
+  let output = File_utils.read_file file in
   let result =
     match status with
     | Unix.WSTOPPED sig_ -> Printf.sprintf "Process was stopped by signal %d" sig_

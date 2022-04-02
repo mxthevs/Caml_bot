@@ -19,7 +19,7 @@ let from_file file_path =
   in
 
   file_path
-  |> Helpers.read_file
+  |> File_utils.read_file
   |> String.split_on_char '\n'
   |> List.map String.trim
   |> List.filter (fun s -> String.length s > 0)

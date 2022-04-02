@@ -15,7 +15,12 @@ module Reply = struct
     (* TODO: capture `(` and `)` correctly instead of using `.`*)
     let re = Str.regexp {|^%\b+.\(\b+\)?\(,\)?\(\b+\)?.|} in
     let has_function = Str.string_match re response 0 in
-    let funcall = if has_function then Parser.split_on_first_space response else [ response ] in
+    let funcall =
+      if has_function then
+        String_utils.split_on_first_space response
+      else
+        [ response ]
+    in
 
     match funcall with
     | [ call; arguments ] -> (funcall_command_of_string call, arguments)
@@ -25,7 +30,7 @@ module Reply = struct
     match get_reply response with
     | User, parsed_reply -> user ^ ", " ^ parsed_reply
     | FstOrUser, parsed_reply ->
-      let tagged = List.nth_opt (Parser.split_on_first_space args) 0 in
+      let tagged = List.nth_opt (String_utils.split_on_first_space args) 0 in
       Option.value tagged ~default:user ^ ", " ^ parsed_reply
     | Noop, parsed_reply -> parsed_reply
 end
@@ -112,8 +117,19 @@ let is_authorized user =
   |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii user)
   |> Option.is_some
 
+let extract_params message =
+  let open String_utils in
+  let command =
+    if has_char ' ' message then
+      message |> skip 1 |> take_until ' '
+    else
+      message |> skip 1 |> String.trim
+  in
+  let rest = message |> take_after ' ' in
+  (command, rest)
+
 let handle_command ~message ~user =
-  let name, args = Helpers.extract_params message in
+  let name, args = extract_params message in
 
   let response =
     match name with
