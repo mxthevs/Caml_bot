@@ -70,10 +70,10 @@ let list_public () =
   public |> List.map to_string |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
 
 let list_external () =
-  match Bot.Storage.index () with
+  match Storage.index () with
   | Ok command_list ->
     command_list
-    |> List.map (fun (cmd : Bot.Storage.external_command) -> cmd.name)
+    |> List.map (fun (cmd : Storage.external_command) -> cmd.name)
     |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
   | Error _ -> ""
 
@@ -81,18 +81,18 @@ let list ~to_:user = "@" ^ user ^ ", os comandos são: " ^ list_public () ^ list
 
 let get_handler t : (module HANDLER) =
   match t with
-  | Addcmd `Mod_only -> (module Bot.Addcmd)
-  | Updcmd `Mod_only -> (module Bot.Updcmd)
-  | Delcmd `Mod_only -> (module Bot.Delcmd)
-  | Flip -> (module Bot.Flip)
-  | Wttr -> (module Bot.Wttr)
-  | Rr -> (module Bot.Rr)
-  | Node `Mod_only -> (module Bot.Node)
+  | Addcmd `Mod_only -> (module Addcmd)
+  | Updcmd `Mod_only -> (module Updcmd)
+  | Delcmd `Mod_only -> (module Delcmd)
+  | Flip -> (module Flip)
+  | Wttr -> (module Wttr)
+  | Rr -> (module Rr)
+  | Node `Mod_only -> (module Node)
 
 let parse ~args ~user ~handler : string = handler ~args:(String.trim args) ~user
 
 let parse_as_external ~command =
-  match Bot.Storage.show command with
+  match Storage.show command with
   | Ok command -> command
   | Error _ -> None
 

@@ -1,5 +1,5 @@
 open Caml_bot
-open Bot.Storage.Db
+open Storage.Db
 
 let () = dispatch ensure_commands_table_exists |> Lwt_main.run
 
