@@ -76,7 +76,7 @@ let start (config : Config.t) =
 
     let handle_privsmg ~target ~message ~sender =
       if message.[0] = '!' then
-        match Command.handle ~message ~user:sender with
+        match Bot.handle_command ~message ~user:sender with
         | Ok reply ->
           Irc_protocol.privmsg ~target reply
           |> Irc_protocol.fmt_outgoing ~debug:config.debug

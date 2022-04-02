@@ -6,27 +6,35 @@ module Reply = struct
 
   type t = funcall * string
 
-  let funcall_of_string = function
+  let funcall_command_of_string = function
     | {|%user()|} -> User
     | {|%or(fst,user)|} -> FstOrUser
     | _ -> Noop
 
-  let get_reply str =
+  let get_reply response =
     (* TODO: capture `(` and `)` correctly instead of using `.`*)
     let re = Str.regexp {|^%\b+.\(\b+\)?\(,\)?\(\b+\)?.|} in
-    let has_function = Str.string_match re str 0 in
-    let funcall = if has_function then Parser.split_on_first_space str else [ str ] in
+    let has_function = Str.string_match re response 0 in
+    let funcall = if has_function then Parser.split_on_first_space response else [ response ] in
 
     match funcall with
-    | [ call; arguments ] -> (funcall_of_string call, arguments)
+    | [ call; arguments ] -> (funcall_command_of_string call, arguments)
     | arguments -> (Noop, List.nth arguments 0)
+
+  let fmt_reply response ~user ~args =
+    match get_reply response with
+    | User, parsed_reply -> user ^ ", " ^ parsed_reply
+    | FstOrUser, parsed_reply ->
+      let tagged = List.nth_opt (Parser.split_on_first_space args) 0 in
+      Option.value tagged ~default:user ^ ", " ^ parsed_reply
+    | Noop, parsed_reply -> parsed_reply
 end
 
 module type HANDLER = sig
   val handle : args:string -> user:string -> string
 end
 
-type t =
+type command =
   | Addcmd of [ `Mod_only ]
   | Updcmd of [ `Mod_only ]
   | Delcmd of [ `Mod_only ]
@@ -35,7 +43,7 @@ type t =
   | Rr
   | Node   of [ `Mod_only ]
 
-let of_string = function
+let command_of_string = function
   | "addcmd" -> Ok (Addcmd `Mod_only)
   | "updcmd" -> Ok (Updcmd `Mod_only)
   | "delcmd" -> Ok (Delcmd `Mod_only)
@@ -45,7 +53,7 @@ let of_string = function
   | "node" -> Ok (Node `Mod_only)
   | _ -> Error ()
 
-let to_string = function
+let command_to_string = function
   | Addcmd `Mod_only -> "addcmd"
   | Updcmd `Mod_only -> "updcmd"
   | Delcmd `Mod_only -> "delcmd"
@@ -67,7 +75,7 @@ let all = [ Addcmd `Mod_only; Updcmd `Mod_only; Delcmd `Mod_only; Flip; Wttr; Rr
 let public = List.filter (fun command -> not @@ is_mod_only command) all
 
 let list_public () =
-  public |> List.map to_string |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
+  public |> List.map command_to_string |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
 
 let list_external () =
   match Storage.index () with
@@ -104,14 +112,14 @@ let is_authorized user =
   |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii user)
   |> Option.is_some
 
-let handle ~message ~user =
+let handle_command ~message ~user =
   let name, args = Helpers.extract_params message in
 
   let response =
     match name with
     | "comandos" -> Some (list ~to_:user)
     | _ -> (
-      let command = of_string name in
+      let command = command_of_string name in
       match command with
       | Ok command ->
         let module Handler = (val get_handler command) in
@@ -126,12 +134,5 @@ let handle ~message ~user =
   in
 
   match response with
-  | Some response -> (
-    let open Reply in
-    match get_reply response with
-    | User, parsed_reply -> Ok (user ^ ", " ^ parsed_reply)
-    | FstOrUser, parsed_reply ->
-      let tagged = List.nth_opt (Parser.split_on_first_space args) 0 in
-      Ok (Option.value tagged ~default:user ^ ", " ^ parsed_reply)
-    | Noop, parsed_reply -> Ok parsed_reply)
+  | Some response -> Ok (Reply.fmt_reply response ~user ~args)
   | None -> Error ()
