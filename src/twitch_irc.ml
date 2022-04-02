@@ -50,13 +50,18 @@ let join_and_greet (config : Config.t) (out_string : out_string) (out_descr : ou
   nick |> Irc_protocol.nick |> fmt |> out_string out_descr;
   chan |> Irc_protocol.join |> fmt |> out_string out_descr
 
+let list_to_option xs =
+  match xs with
+  | x :: _ -> Some x
+  | [] -> None
+
 let start (config : Config.t) =
   if config.debug then Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" conn.host conn.port;
   flush stdout;
 
   let client_socket = Unix.socket ~cloexec:true Unix.PF_INET Unix.SOCK_STREAM 0 in
   let addr =
-    match (Unix.gethostbyname conn.host).h_addr_list |> Array.to_list |> Helpers.list_to_option with
+    match (Unix.gethostbyname conn.host).h_addr_list |> Array.to_list |> list_to_option with
     | Some addr -> addr
     | None -> (
       match config.debug with

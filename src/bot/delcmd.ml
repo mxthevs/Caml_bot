@@ -1,11 +1,6 @@
-let split_on_first_space =
-  let re = Str.regexp "[ \t\r\n]" in
-  function
-  | s -> Str.bounded_split re s 2
-
 let handle ~args ~user =
   let params =
-    match split_on_first_space args with
+    match String_utils.split_on_first_space args with
     | [ name ] -> Some name
     | _ -> None
   in
