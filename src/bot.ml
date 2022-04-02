@@ -83,10 +83,10 @@ let list_public () =
   public |> List.map command_to_string |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
 
 let list_external () =
-  match Storage.index () with
+  match Storage.Command.index () with
   | Ok command_list ->
     command_list
-    |> List.map (fun (cmd : Storage.external_command) -> cmd.name)
+    |> List.map (fun (cmd : Storage.Command.external_command) -> cmd.name)
     |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
   | Error _ -> ""
 
@@ -105,7 +105,7 @@ let get_handler t : (module HANDLER) =
 let parse ~args ~user ~handler : string = handler ~args:(String.trim args) ~user
 
 let parse_as_external ~command =
-  match Storage.show command with
+  match Storage.Command.show command with
   | Ok command -> command
   | Error _ -> None
 
