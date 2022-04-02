@@ -115,10 +115,10 @@ let update ({ name; reply } : external_command) =
   try Ok (Lwt_main.run (Async.update { name; reply })) with
   | Async.Command_not_found -> Error (`Not_found (Printf.sprintf "Command %s not found" name))
   | Database.Query_failed error ->
-    Error (`Msg (Printf.sprintf "Could not create command: %s" error))
+    Error (`Msg (Printf.sprintf "Could not update command: %s" error))
 
 let destroy name =
   try Ok (Lwt_main.run (Async.destroy name)) with
   | Async.Command_not_found -> Error (`Not_found (Printf.sprintf "Command %s not found" name))
   | Database.Query_failed error ->
-    Error (`Msg (Printf.sprintf "Could not create command: %s" error))
+    Error (`Msg (Printf.sprintf "Could not destroy command: %s" error))
