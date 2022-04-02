@@ -37,6 +37,7 @@ depends: [
   "ipaddr-sexp"
   "alcotest" {with-test}
   "randomconv" {with-test}
+  "cmdliner" {dev & > "1.1.0"}
 ]
 conflicts: [ "result" {< "1.5"} ]
 tags: [ "org:mirage"]
@@ -61,10 +62,10 @@ authors: [
 ]
 url {
   src:
-    "https://github.com/mirleft/ocaml-tls/releases/download/v0.15.2/tls-v0.15.2.tbz"
+    "https://github.com/mirleft/ocaml-tls/releases/download/v0.15.3/tls-0.15.3.tbz"
   checksum: [
-    "sha256=b76371757249bbeabb12c333de4ea2a09c095767bdbbc83322538c0da1fc1e36"
-    "sha512=e6e089a853848e82647bc3f6ecaa3a95cdb559e50b7ad9d06064c1fd0c931b0e942ff0877c8066ec79b6b42a29512449ba1a5c6de1f1502cdbfc3397546f417c"
+    "sha256=5db456f98a2da3778296152f33dfb73e900c691c958805899fc8e6981f74465a"
+    "sha512=371b85c6afebeda0fcc8cc5252e3333d9c3ef3a6bdbee160bb194e2a5928fd537c811c6eec729f16852070944e627257d44c97142a259d00d0db66956a95df49"
   ]
 }
-x-commit-hash: "0ba4883e9372495682e3407817614f17ddf002d7"
+x-commit-hash: "9e05cbb8c61f1dd3e9707c530a7697cd2e63f45f"
