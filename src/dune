@@ -1,3 +1,18 @@
 (library
  (name caml_bot)
- (libraries unix str bot))
+ (libraries
+  unix
+  str
+  lwt
+  cohttp
+  cohttp-lwt
+  cohttp-lwt-unix
+  uuidm
+  caqti
+  caqti-lwt
+  caqti-driver-postgresql
+  ppx_rapper_lwt)
+ (preprocess
+  (pps ppx_rapper lwt_ppx)))
+
+(include_subdirs unqualified)
