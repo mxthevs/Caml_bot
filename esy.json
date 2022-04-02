@@ -41,7 +41,9 @@
     "@opam/caqti-driver-postgresql": "1.6.0",
     "@opam/ppx_rapper": "3.0.0",
     "@opam/ppx_rapper_lwt": "3.0.0",
-    "@opam/tls": "*"
+    "@opam/tls": "*",
+    "@opam/logs": "*",
+    "@opam/logs-ppx": "*"
   },
   "devDependencies": {
     "@opam/ocaml-lsp-server": "*",

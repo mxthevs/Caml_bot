@@ -11,8 +11,9 @@
   caqti
   caqti-lwt
   caqti-driver-postgresql
+  logs
   ppx_rapper_lwt)
  (preprocess
-  (pps ppx_rapper lwt_ppx)))
+  (pps ppx_rapper lwt_ppx logs-ppx)))
 
 (include_subdirs unqualified)

@@ -1,3 +1,5 @@
+open Logger
+
 type connection = {
   host : string;
   port : int;
@@ -6,31 +8,25 @@ type connection = {
 let conn = { host = "irc.chat.twitch.tv"; port = 6667 }
 
 module Irc_protocol = struct
-  module Message_type = struct
-    type t =
-      | JOIN
-      | NICK
-      | PASS
-      | PRIVMSG
-      | PONG
+  type message_typ =
+    | JOIN
+    | NICK
+    | PASS
+    | PRIVMSG
+    | PONG
 
-    let to_string = function
-      | JOIN -> "JOIN #"
-      | NICK -> "NICK "
-      | PASS -> "PASS "
-      | PRIVMSG -> "PRIVMSG "
-      | PONG -> "PONG :"
-  end
+  let typ_to_string = function
+    | JOIN -> "JOIN #"
+    | NICK -> "NICK "
+    | PASS -> "PASS "
+    | PRIVMSG -> "PRIVMSG "
+    | PONG -> "PONG :"
 
-  let create ~command content = Message_type.to_string command ^ content ^ "\r\n"
+  let create ~command content = typ_to_string command ^ content ^ "\r\n"
 
-  let fmt_outgoing fn ~debug =
-    let () =
-      match debug with
-      | true -> Printf.sprintf ">>> %s" fn |> print_string
-      | false -> ()
-    in
-    fn
+  let send_message message =
+    [%log debug "%s" message];
+    message
 
   let join channel = create ~command:JOIN channel
   let nick username = create ~command:NICK username
@@ -44,11 +40,9 @@ type out_string = out_channel -> string -> unit
 let join_and_greet (config : Config.t) (out_string : out_string) (out_descr : out_channel) =
   let pass, nick, chan, debug = (config.pass, config.nick, config.chan, config.debug) in
 
-  let fmt = Irc_protocol.fmt_outgoing ~debug in
-
   pass |> Irc_protocol.pass |> out_string out_descr;
-  nick |> Irc_protocol.nick |> fmt |> out_string out_descr;
-  chan |> Irc_protocol.join |> fmt |> out_string out_descr
+  nick |> Irc_protocol.nick |> Irc_protocol.send_message |> out_string out_descr;
+  chan |> Irc_protocol.join |> Irc_protocol.send_message |> out_string out_descr
 
 let list_to_option xs =
   match xs with
@@ -56,21 +50,20 @@ let list_to_option xs =
   | [] -> None
 
 let start (config : Config.t) =
-  if config.debug then Printf.printf "[Twitch_irc] Trying to connect to %s:%d\n" conn.host conn.port;
+  [%log info "Trying to connect to %s:%d" conn.host conn.port];
   flush stdout;
 
   let client_socket = Unix.socket ~cloexec:true Unix.PF_INET Unix.SOCK_STREAM 0 in
   let addr =
     match (Unix.gethostbyname conn.host).h_addr_list |> Array.to_list |> list_to_option with
     | Some addr -> addr
-    | None -> (
-      match config.debug with
-      | true -> conn.host |> Printf.sprintf "[Twitch_irc] Could not resolve %s\n" |> failwith
-      | false -> raise (Failure "oops"))
+    | None ->
+      [%log err "Could not resolve %s" conn.host];
+      exit 1
   in
   Unix.connect client_socket (ADDR_INET (addr, conn.port));
 
-  if config.debug then Printf.printf "[Twitch_irc] Connected!\n";
+  [%log info "Connected!"];
   flush stdout;
 
   let input_channel = client_socket |> Unix.in_channel_of_descr in
@@ -84,7 +77,7 @@ let start (config : Config.t) =
         match Bot.handle_command ~message ~user:sender with
         | Ok reply ->
           Irc_protocol.privmsg ~target reply
-          |> Irc_protocol.fmt_outgoing ~debug:config.debug
+          |> Irc_protocol.send_message
           |> output_string output_channel
         | Error () -> ()
     in
@@ -94,14 +87,13 @@ let start (config : Config.t) =
       match message.command with
       | PRIVMSG (target, message, sender) -> handle_privsmg ~target ~message ~sender
       | PING (target, _) ->
-        target
-        |> Irc_protocol.pong
-        |> Irc_protocol.fmt_outgoing ~debug:config.debug
-        |> output_string output_channel
+        target |> Irc_protocol.pong |> Irc_protocol.send_message |> output_string output_channel
       | _ -> ())
     | Error error -> (
       match config.debug with
-      | true -> error |> Printf.sprintf "[Twitch_irc] %s\n" |> failwith
+      | true ->
+        [%log err "%s" error];
+        exit 1
       | false -> ()));
 
     flush_all ();
