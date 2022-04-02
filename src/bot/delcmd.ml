@@ -7,7 +7,7 @@ let handle ~args ~user =
 
   match params with
   | Some command -> (
-    match Storage.destroy command with
+    match Storage.Command.destroy command with
     | Ok () -> "Comando deletado com sucesso. !delcmd é um comando apenas para moderadores"
     | Error (`Not_found _) -> "O comando que você está tentando deletar não existe"
     | Error (`Msg _) -> "Não foi possível deletar o comando e a culpa é do criador desse bot")

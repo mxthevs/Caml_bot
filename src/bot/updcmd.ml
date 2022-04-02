@@ -7,7 +7,7 @@ let handle ~args ~user =
 
   match params with
   | Some (command, response) -> (
-    match Storage.update { name = command; reply = response } with
+    match Storage.Command.update { name = command; reply = response } with
     | Ok () -> "Comando atualizado com sucesso. !updcmd é um comando apenas para moderadores"
     | Error (`Not_found _) -> "O comando que você está tentando atualizar não existe"
     | Error (`Msg _) -> "Não foi possível atualizar o comando e a culpa é do criador desse bot")
