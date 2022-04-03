@@ -1,6 +1,7 @@
 open Caml_bot
 
-let () = Lwt_main.run (Migrations.migrate_database ())
+let () = Lwt_main.run (Database.dispatch Migrations.ensure_commands_table_exists)
+let () = Lwt_main.run (Database.dispatch Migrations.ensure_trusted_users_table_exists)
 
 let () =
   match Sys.argv |> Array.to_list with

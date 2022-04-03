@@ -40,43 +40,63 @@ module type HANDLER = sig
 end
 
 type command =
-  | Addcmd of [ `Mod_only ]
-  | Updcmd of [ `Mod_only ]
-  | Delcmd of [ `Mod_only ]
+  | Addcmd  of [ `Authorized ]
+  | Updcmd  of [ `Authorized ]
+  | Delcmd  of [ `Authorized ]
   | Flip
   | Wttr
   | Rr
-  | Node   of [ `Mod_only ]
+  | Node    of [ `Authorized ]
+  | Trust   of [ `Authorized ]
+  | Untrust of [ `Authorized ]
 
 let command_of_string = function
-  | "addcmd" -> Ok (Addcmd `Mod_only)
-  | "updcmd" -> Ok (Updcmd `Mod_only)
-  | "delcmd" -> Ok (Delcmd `Mod_only)
+  | "addcmd" -> Ok (Addcmd `Authorized)
+  | "updcmd" -> Ok (Updcmd `Authorized)
+  | "delcmd" -> Ok (Delcmd `Authorized)
   | "flip" -> Ok Flip
   | "clima" -> Ok Wttr
   | "roleta" -> Ok Rr
-  | "node" -> Ok (Node `Mod_only)
+  | "node" -> Ok (Node `Authorized)
+  | "trust" -> Ok (Trust `Authorized)
+  | "untrust" -> Ok (Untrust `Authorized)
   | _ -> Error ()
 
 let command_to_string = function
-  | Addcmd `Mod_only -> "addcmd"
-  | Updcmd `Mod_only -> "updcmd"
-  | Delcmd `Mod_only -> "delcmd"
+  | Addcmd `Authorized -> "addcmd"
+  | Updcmd `Authorized -> "updcmd"
+  | Delcmd `Authorized -> "delcmd"
   | Flip -> "flip"
   | Wttr -> "clima"
   | Rr -> "roleta"
-  | Node `Mod_only -> "node"
+  | Node `Authorized -> "node"
+  | Trust `Authorized -> "trust"
+  | Untrust `Authorized -> "untrust"
 
 let is_mod_only = function
-  | Addcmd `Mod_only -> true
-  | Updcmd `Mod_only -> true
-  | Delcmd `Mod_only -> true
+  | Addcmd `Authorized -> true
+  | Updcmd `Authorized -> true
+  | Delcmd `Authorized -> true
   | Flip -> false
   | Wttr -> false
   | Rr -> false
-  | Node `Mod_only -> true
+  | Node `Authorized -> true
+  | Trust `Authorized -> true
+  | Untrust `Authorized -> true
 
-let all = [ Addcmd `Mod_only; Updcmd `Mod_only; Delcmd `Mod_only; Flip; Wttr; Rr; Node `Mod_only ]
+let all =
+  [
+    Addcmd `Authorized;
+    Updcmd `Authorized;
+    Delcmd `Authorized;
+    Flip;
+    Wttr;
+    Rr;
+    Node `Authorized;
+    Trust `Authorized;
+    Untrust `Authorized;
+  ]
+
 let public = List.filter (fun command -> not @@ is_mod_only command) all
 
 let list_public () =
@@ -94,13 +114,15 @@ let list ~to_:user = "@" ^ user ^ ", os comandos são: " ^ list_public () ^ list
 
 let get_handler t : (module HANDLER) =
   match t with
-  | Addcmd `Mod_only -> (module Addcmd)
-  | Updcmd `Mod_only -> (module Updcmd)
-  | Delcmd `Mod_only -> (module Delcmd)
+  | Addcmd `Authorized -> (module Addcmd)
+  | Updcmd `Authorized -> (module Updcmd)
+  | Delcmd `Authorized -> (module Delcmd)
   | Flip -> (module Flip)
   | Wttr -> (module Wttr)
   | Rr -> (module Rr)
-  | Node `Mod_only -> (module Node)
+  | Node `Authorized -> (module Node)
+  | Trust `Authorized -> (module Trust)
+  | Untrust `Authorized -> (module Untrust)
 
 let parse ~args ~user ~handler : string = handler ~args:(String.trim args) ~user
 
@@ -110,12 +132,14 @@ let parse_as_external ~command =
   | Error _ -> None
 
 let is_authorized user =
-  (* TODO: verify this dynamically *)
-  (* Create the `trusted user` concept *)
-  (* !trust ${user} || !untrust ${user} *)
-  [ "mxthevsz"; "caml_bot" ]
-  |> List.find_opt (fun authorized -> authorized = String.lowercase_ascii user)
-  |> Option.is_some
+  let user = Storage.Trusted_users.show user in
+
+  match user with
+  | Ok maybe_user -> (
+    match maybe_user with
+    | Some _ -> true
+    | None -> false)
+  | Error _ -> false
 
 let extract_params message =
   let open String_utils in
