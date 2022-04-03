@@ -11,7 +11,15 @@ let reporter ppf =
       over ();
       k ()
     in
-    let with_stamp h tags k ppf fmt =
+    let formatter h tags k ppf fmt =
+      let color =
+        match level with
+        | Logs.App -> "\x1b[0;39m"
+        | Logs.Info -> "\x1b[0;34m"
+        | Logs.Debug -> "\x1b[0;36m"
+        | Logs.Warning -> "\x1b[0;33m"
+        | Logs.Error -> "\x1b[0;31m"
+      in
       let stamp =
         match tags with
         | None -> None
@@ -22,9 +30,11 @@ let reporter ppf =
         | None -> 0.
         | Some s -> Mtime.Span.to_us s
       in
-      Format.kfprintf k ppf ("%a[%0+04.0fus] @[" ^^ fmt ^^ "@]@.") Logs.pp_header (level, h) dt
+      Format.kfprintf k ppf
+        ("%s%a[%0+04.0fus] @[" ^^ fmt ^^ "@]@.\x1b[0m")
+        color Logs.pp_header (level, h) dt
     in
-    msgf @@ fun ?header ?tags fmt -> with_stamp header tags k ppf fmt
+    msgf @@ fun ?header ?tags fmt -> formatter header tags k ppf fmt
   in
   { Logs.report }
 
