@@ -2,10 +2,9 @@ type t = {
   nick : string;
   pass : string;
   chan : string;
-  debug : bool;
 }
 
-let empty = { nick = ""; pass = ""; chan = ""; debug = false }
+let empty = { nick = ""; pass = ""; chan = "" }
 
 let from_file file_path =
   let update_config config pair =
@@ -13,7 +12,6 @@ let from_file file_path =
     | [ "twitch.nick"; nick ] -> { config with nick }
     | [ "twitch.pass"; pass ] -> { config with pass }
     | [ "twitch.chan"; chan ] -> { config with chan }
-    | [ "client.debug"; debug ] -> { config with debug = bool_of_string debug }
     | [ unknown; _ ] -> unknown |> Printf.sprintf "`%s` config key is unknown." |> failwith
     | _ -> failwith "Your config file probably have some sort of syntax errors."
   in
