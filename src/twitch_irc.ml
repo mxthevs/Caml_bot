@@ -38,7 +38,7 @@ end
 type out_string = out_channel -> string -> unit
 
 let join_and_greet (config : Config.t) (out_string : out_string) (out_descr : out_channel) =
-  let pass, nick, chan, debug = (config.pass, config.nick, config.chan, config.debug) in
+  let pass, nick, chan = (config.pass, config.nick, config.chan) in
 
   pass |> Irc_protocol.pass |> out_string out_descr;
   nick |> Irc_protocol.nick |> Irc_protocol.send_message |> out_string out_descr;
@@ -89,12 +89,7 @@ let start (config : Config.t) =
       | PING (target, _) ->
         target |> Irc_protocol.pong |> Irc_protocol.send_message |> output_string output_channel
       | _ -> ())
-    | Error error -> (
-      match config.debug with
-      | true ->
-        [%log err "%s" error];
-        exit 1
-      | false -> ()));
+    | Error error -> [%log err "%s" error]);
 
     flush_all ();
     wait_for_messages_and_reply ()
