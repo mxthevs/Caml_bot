@@ -39,6 +39,15 @@ let reporter ppf =
   { Logs.report }
 
 let () = Logs.set_reporter (reporter Format.std_formatter)
-let () = Logs.Src.set_level log_source (Some Logs.Info)
+
+let () =
+  Logs.Src.set_level log_source
+    (match Sys.getenv "LOG_LEVEL" with
+    | "app" -> Some Logs.App
+    | "info" -> Some Logs.Info
+    | "debug" -> Some Logs.Debug
+    | "warn" -> Some Logs.Warning
+    | "error" -> Some Logs.Error
+    | _ -> None)
 
 module Log = (val Logs.src_log log_source : Logs.LOG)

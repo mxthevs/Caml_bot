@@ -40,10 +40,15 @@ dce:
 
 install: clean deps
 
-run: export DATABASE=$(PG_DATABASE)
-run: export USERNAME=$(PG_USERNAME)
-run: export PASSWORD=$(PG_PASSWORD)
-run: export PORT=$(PG_PORT)
+run debug: export DATABASE=$(PG_DATABASE)
+run debug: export USERNAME=$(PG_USERNAME)
+run debug: export PASSWORD=$(PG_PASSWORD)
+run debug: export PORT=$(PG_PORT)
+
+run: export LOG_LEVEL=info
 run: up wait
 	esy x ${PROJECT} ${SECRETS_PATH}
 
+debug: export LOG_LEVEL=debug
+debug: up wait
+	esy x ${PROJECT} ${SECRETS_PATH}
