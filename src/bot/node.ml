@@ -34,4 +34,6 @@ let handle' input =
 
   Lwt.return result
 
-let handle ~args ~user = Lwt_main.run (handle' args)
+let handle ~args ~user =
+  try Lwt_main.run (handle' args) with
+  | Failure _ -> "Tentou quebrar o bot né, safadjenho?"
