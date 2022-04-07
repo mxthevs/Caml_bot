@@ -25,7 +25,7 @@ module Irc_protocol = struct
   let create ~command content = typ_to_string command ^ content ^ "\r\n"
 
   let send_message message =
-    [%log debug "%s" message];
+    [%log debug ">>> %s" (String.trim message)];
     message
 
   let join channel = create ~command:JOIN channel
@@ -73,6 +73,8 @@ let start (config : Config.t) =
     let input = input_channel |> input_line in
 
     let handle_privsmg ~target ~message ~sender =
+      [%log debug "<<< %s" (String.trim message)];
+
       if message.[0] = '!' then
         match Bot.handle_command ~message ~user:sender with
         | Ok reply ->
