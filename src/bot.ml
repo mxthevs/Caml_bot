@@ -49,6 +49,7 @@ type command =
   | Node    of [ `Authorized ]
   | Trust   of [ `Authorized ]
   | Untrust of [ `Authorized ]
+  | Sync    of [ `Authorized ]
 
 let command_of_string = function
   | "addcmd" -> Ok (Addcmd `Authorized)
@@ -60,6 +61,7 @@ let command_of_string = function
   | "node" -> Ok (Node `Authorized)
   | "trust" -> Ok (Trust `Authorized)
   | "untrust" -> Ok (Untrust `Authorized)
+  | "sync" -> Ok (Sync `Authorized)
   | _ -> Error ()
 
 let command_to_string = function
@@ -72,6 +74,7 @@ let command_to_string = function
   | Node `Authorized -> "node"
   | Trust `Authorized -> "trust"
   | Untrust `Authorized -> "untrust"
+  | Sync `Authorized -> "sync"
 
 let is_mod_only = function
   | Addcmd `Authorized -> true
@@ -83,6 +86,7 @@ let is_mod_only = function
   | Node `Authorized -> true
   | Trust `Authorized -> true
   | Untrust `Authorized -> true
+  | Sync `Authorized -> true
 
 let all =
   [
@@ -95,22 +99,14 @@ let all =
     Node `Authorized;
     Trust `Authorized;
     Untrust `Authorized;
+    Sync `Authorized;
   ]
-
-let public = List.filter (fun command -> not @@ is_mod_only command) all
-
-let list_public () =
-  public |> List.map command_to_string |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
 
 let list_external () =
   match Storage.Command.index () with
   | Ok command_list ->
-    command_list
-    |> List.map (fun (cmd : Storage.Command.external_command) -> cmd.name)
-    |> List.fold_left (fun acc el -> acc ^ " !" ^ el) ""
-  | Error _ -> ""
-
-let list ~to_:user = "@" ^ user ^ ", os comandos são: " ^ list_public () ^ list_external ()
+    command_list |> List.map (fun (cmd : Storage.Command.external_command) -> cmd.name)
+  | Error _ -> []
 
 let get_handler t : (module HANDLER) =
   match t with
@@ -123,6 +119,15 @@ let get_handler t : (module HANDLER) =
   | Node `Authorized -> (module Node)
   | Trust `Authorized -> (module Trust)
   | Untrust `Authorized -> (module Untrust)
+  | Sync `Authorized ->
+    (module Sync.Make (struct
+      type t = command
+
+      let builtin = all
+      let external_ = list_external ()
+      let is_mod_only = is_mod_only
+      let to_string = command_to_string
+    end))
 
 let parse ~args ~user ~handler : string = handler ~args:(String.trim args) ~user
 
@@ -157,7 +162,7 @@ let handle_command ~message ~user =
 
   let response =
     match name with
-    | "comandos" -> Some (list ~to_:user)
+    (* | "comandos" -> Some (list ~to_:user) *)
     | _ -> (
       let command = command_of_string name in
       match command with
