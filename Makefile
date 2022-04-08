@@ -40,6 +40,7 @@ dce:
 
 install: clean deps
 
+run debug: export GITHUB_TOKEN=$(GH_TOKEN)
 run debug: export DATABASE=$(PG_DATABASE)
 run debug: export USERNAME=$(PG_USERNAME)
 run debug: export PASSWORD=$(PG_PASSWORD)
