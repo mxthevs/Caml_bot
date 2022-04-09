@@ -105,7 +105,7 @@ let all =
 let list_external () =
   match Storage.Command.index () with
   | Ok command_list ->
-    command_list |> List.map (fun (cmd : Storage.Command.external_command) -> cmd.name)
+    command_list |> List.map (fun (cmd : Storage.Command.external_command) -> (cmd.name, cmd.reply))
   | Error _ -> []
 
 let get_handler t : (module HANDLER) =
@@ -161,21 +161,18 @@ let handle_command ~message ~user =
   let name, args = extract_params message in
 
   let response =
-    match name with
-    (* | "comandos" -> Some (list ~to_:user) *)
-    | _ -> (
-      let command = command_of_string name in
-      match command with
-      | Ok command ->
-        let module Handler = (val get_handler command) in
-        if is_mod_only command && (not @@ is_authorized user) then
-          Some (Printf.sprintf "@%s, esse comando é apenas para usuários autorizados" user)
-        else
-          Some (parse ~handler:Handler.handle ~args ~user)
-      | Error () -> (
-        match parse_as_external ~command:(String.trim name) with
-        | Some { reply; _ } -> Some reply
-        | None -> None))
+    let command = command_of_string name in
+    match command with
+    | Ok command ->
+      let module Handler = (val get_handler command) in
+      if is_mod_only command && (not @@ is_authorized user) then
+        Some (Printf.sprintf "@%s, esse comando é apenas para usuários autorizados" user)
+      else
+        Some (parse ~handler:Handler.handle ~args ~user)
+    | Error () -> (
+      match parse_as_external ~command:(String.trim name) with
+      | Some { reply; _ } -> Some reply
+      | None -> None)
   in
 
   match response with
