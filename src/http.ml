@@ -1,6 +1,7 @@
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
+open Logger
 
 let get_sync url =
   let get () =
@@ -10,7 +11,9 @@ let get_sync url =
     if Code.is_success code then
       body |> Cohttp_lwt.Body.to_string >|= fun body -> Ok body
     else
-      Lwt.return (Error (`Msg (Printf.sprintf "Request failed with code %d" code)))
+      body |> Cohttp_lwt.Body.to_string >|= fun body ->
+      [%log err "%s" body];
+      Error (`Body body)
   in
 
   Lwt_main.run (get ())
@@ -29,7 +32,9 @@ let post_sync ?headers url ~body =
     if Code.is_success code then
       body |> Cohttp_lwt.Body.to_string >|= fun body -> Ok body
     else
-      Lwt.return (Error (`Msg (Printf.sprintf "Request failed with code %d" code)))
+      body |> Cohttp_lwt.Body.to_string >|= fun body ->
+      [%log err "%s" body];
+      Error (`Body body)
   in
 
   Lwt_main.run (post ())
