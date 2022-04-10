@@ -1,6 +1,7 @@
 module Reply = struct
   type funcall =
     | User
+    | Fst
     | FstOrUser
     | Noop
 
@@ -8,6 +9,7 @@ module Reply = struct
 
   let funcall_command_of_string = function
     | {|%user()|} -> User
+    | {|%fst()|} -> Fst
     | {|%or(fst,user)|} -> FstOrUser
     | _ -> Noop
 
@@ -29,6 +31,11 @@ module Reply = struct
   let fmt_reply response ~user ~args =
     match get_reply response with
     | User, parsed_reply -> user ^ ", " ^ parsed_reply
+    | Fst, parsed_reply -> (
+      let tagged = List.nth_opt (String_utils.split_on_first_space args) 0 in
+      match tagged with
+      | Some tagged -> tagged ^ " " ^ parsed_reply
+      | None -> parsed_reply)
     | FstOrUser, parsed_reply ->
       let tagged = List.nth_opt (String_utils.split_on_first_space args) 0 in
       Option.value tagged ~default:user ^ ", " ^ parsed_reply
