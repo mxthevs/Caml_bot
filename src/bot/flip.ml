@@ -65,7 +65,7 @@ let flip_table =
 
 let string_of_char c = String.make 1 c
 
-let handle ~args ~user =
+let flip' text =
   let rec flip_str acc = function
     | [] -> acc
     | letter :: rest ->
@@ -75,10 +75,11 @@ let handle ~args ~user =
       in
       flip_str (flipped ^ acc) rest
   in
-
-  let input = args |> String.to_seq |> List.of_seq |> List.map string_of_char in
+  let input = text |> String.to_seq |> List.of_seq |> List.map string_of_char in
 
   let emote = {|╯°□°)╯︵ |} in
   let flipped_text = flip_str "" input in
 
   emote ^ flipped_text
+
+let handle ~args ~user = flip' args
